@@ -10,4 +10,5 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma || createPrismaClient();
 
+// Triggering reload after schema update
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

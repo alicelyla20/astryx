@@ -14,24 +14,47 @@ model User {
 }
 
 model Category {
-  id           String      @id @default(cuid())
-  name         String      @unique
-  colorHex     String      // e.g., "#8B5CF6"
-  energyLevel  EnergyLevel @default(MEDIUM)
-  isArchived   Boolean     @default(false)
-  createdAt    DateTime    @default(now())
+  id          String   @id @default(cuid())
+  name        String   @unique
+  colorHex    String   // e.g., "#8B5CF6"
+  energyLevel EnergyLevel @default(MEDIUM)
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
   
-  tasks        Task[]
-  savePoints   SavePoint[]
+  // A Category now has many Chains and Tasks
+  chains      Chain[]
 }
 
-model SavePoint {
+model Chain {
   id          String   @id @default(cuid())
+  name        String
+  
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  // A Chain has many Events and Tasks
+  events      ChainEvent[]
+  tasks       Task[]
+
+  @@unique([categoryId, name]) // A chain name must be unique within its category
+}
+
+model ChainEvent {
+  id          String   @id @default(cuid())
+  
+  chainId     String
+  chain       Chain    @relation(fields: [chainId], references: [id], onDelete: Cascade)
+  
   content     String   // Plain text with line breaks
   link        String?  // Optional clickable URL
-  createdAt   DateTime @default(now()) // Acts as history tracker
+  
+  energyLevel EnergyLevel @default(MEDIUM)
+  motivation  MotivationType?
+  
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now()) // Acts as the event date
 }
 
 model DailyLog {
@@ -51,8 +74,8 @@ model Task {
   type          TaskType        // ROUTINE or TECHNICAL
   energyLevel   EnergyLevel     @default(MEDIUM)
   
-  categoryId    String?
-  category      Category?       @relation(fields: [categoryId], references: [id])
+  chainId       String
+  chain         Chain           @relation(fields: [chainId], references: [id], onDelete: Cascade)
   
   dailyLogId    String
   dailyLog      DailyLog        @relation(fields: [dailyLogId], references: [id])

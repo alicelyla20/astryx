@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { User, Archive, History, Settings, LogOut } from "lucide-react";
+import { User, Archive, History, Settings, LogOut, Search } from "lucide-react";
 import { logoutAction } from "@/lib/actions";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -30,6 +30,13 @@ export default function TopRightMenu() {
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-zinc-400 font-normal">Sistema</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-zinc-800" />
+            <DropdownMenuItem 
+              className="text-zinc-100 focus:bg-zinc-800 focus:text-white cursor-pointer py-2.5"
+              onClick={() => router.push("/search")}
+            >
+              <Search className="mr-2 h-4 w-4" />
+              <span>Buscar</span>
+            </DropdownMenuItem>
             <DropdownMenuItem 
               className="text-zinc-100 focus:bg-zinc-800 focus:text-white cursor-pointer py-2.5"
               onClick={() => router.push("/historial")}

@@ -8,7 +8,7 @@ import { MotivationType, TaskStatus } from "@prisma/client";
  * Marks a task as completed with a specific motivation type.
  */
 export async function completeTaskAction(taskId: string, motivation: MotivationType) {
-  await prisma.task.update({
+  await (prisma as any).task.update({
     where: { id: taskId },
     data: {
       status: TaskStatus.COMPLETED,
@@ -22,7 +22,7 @@ export async function completeTaskAction(taskId: string, motivation: MotivationT
  * Deletes a task.
  */
 export async function deleteTaskAction(taskId: string) {
-  await prisma.task.delete({
+  await (prisma as any).task.delete({
     where: { id: taskId },
   });
   revalidatePath("/");

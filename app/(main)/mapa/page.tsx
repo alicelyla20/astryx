@@ -24,9 +24,13 @@ export default async function MapaPage() {
             <CategoryCard key={category.id} category={category as any} />
           ))
         ) : (
-          <div className="col-span-full flex flex-col justify-center items-center h-40 bg-zinc-900/20 border border-zinc-800/30 rounded-3xl border-dashed">
-            <p className="text-zinc-500 font-medium text-lg">El mapa está vacío.</p>
-            <p className="text-zinc-600 text-sm mt-1">Crea una categoría para empezar a guardar puntos.</p>
+          <div className="col-span-full flex flex-col justify-center items-center py-20 px-6 bg-zinc-900/20 border border-zinc-800/30 rounded-3xl border-dashed animate-in fade-in zoom-in-95 duration-700">
+            <p className="text-zinc-400 font-bold text-2xl text-center max-w-sm leading-tight">
+              Aún no tienes categorías.
+            </p>
+            <p className="text-zinc-600 text-lg mt-3 text-center max-w-xs">
+              ¡Crea una para empezar a organizar tu mapa!
+            </p>
           </div>
         )}
       </div>

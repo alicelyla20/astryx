@@ -2,88 +2,93 @@
 
 import { prisma } from "./prisma";
 import { getStartOfDayArg } from "./dateUtils";
+import { revalidatePath } from "next/cache";
 
 export interface UpdateDailyLogPayload {
   socialBattery?: number;
   dissociationLevel?: number;
   tranquilityLevel?: number;
   triggersContent?: string;
+  dateStr?: string;
 }
 
-/**
- * Retrieves the daily log for today based on Argentina Time.
- * Ensures that if it doesn't exist, an empty template is upserted.
- * Also performs an internal rollover evaluation to move passed PLANNED tasks to PENDING.
- */
-export async function getTodayLogAction() {
-  const startOfDay = getStartOfDayArg();
+export async function getTodayLogAction(dateStr?: string) {
+  const targetDate = dateStr ? new Date(dateStr) : getStartOfDayArg();
 
-  // Lazy evaluation: Rollover stale tasks to PENDING
-  await prisma.task.updateMany({
-    where: {
-      status: "PLANNED",
-      dailyLog: {
-        date: {
-          lt: startOfDay
+  if (!dateStr) {
+    await (prisma as any).task.updateMany({
+      where: {
+        status: "PLANNED",
+        dailyLog: {
+          date: {
+            lt: targetDate
+          }
         }
+      },
+      data: {
+        status: "PENDING"
       }
-    },
-    data: {
-      status: "PENDING"
-    }
-  });
+    });
+  }
 
-  return await prisma.dailyLog.upsert({
-    where: { date: startOfDay },
-    update: {}, // Do nothing if it exists
+  return await (prisma as any).dailyLog.upsert({
+    where: { date: targetDate },
+    update: {}, 
     create: {
-      date: startOfDay,
+      date: targetDate,
     },
     include: {
-      tasks: true, // Fetch tasks bound to today
+      tasks: {
+        include: {
+          chain: {
+            include: {
+              category: true
+            }
+          }
+        }
+      },
     }
   });
 }
 
-/**
- * Persists partial updates directly to today's log securely.
- */
 export async function updateDailyLogAction(payload: UpdateDailyLogPayload) {
-  const startOfDay = getStartOfDayArg();
+  const targetDate = payload.dateStr ? new Date(payload.dateStr) : getStartOfDayArg();
+  const { dateStr, ...updateData } = payload;
 
-  return await prisma.dailyLog.upsert({
-    where: { date: startOfDay },
-    update: { ...payload },
+  return await (prisma as any).dailyLog.upsert({
+    where: { date: targetDate },
+    update: { ...updateData },
     create: {
-      date: startOfDay,
-      ...payload,
+      date: targetDate,
+      ...updateData,
     },
   });
 }
-
-import { revalidatePath } from "next/cache";
 
 export async function createTaskAction(prevState: any, formData: FormData) {
   const title = formData.get("title") as string;
   const type = formData.get("type") as any;
   const energyLevel = formData.get("energyLevel") as any;
+  const chainId = formData.get("chainId") as string;
+  const dateStr = formData.get("dateStr") as string | null;
 
-  if (!title || !type || !energyLevel) {
-    return { error: "Todos los campos son requeridos." };
+  if (!title || !type || !energyLevel || !chainId) {
+    return { error: "Todos los campos son requeridos, incluyendo la cadena origen." };
   }
 
-  // Ensure daily log exists
-  const dailyLog = await getTodayLogAction();
+  const dailyLog = await getTodayLogAction(dateStr || undefined);
 
-  await prisma.task.create({
+  await (prisma as any).task.create({
     data: {
       title,
       type,
       energyLevel,
+      chainId,
       dailyLogId: dailyLog.id,
     }
   });
 
   revalidatePath("/");
+  revalidatePath("/historial");
   return { success: true };
 }

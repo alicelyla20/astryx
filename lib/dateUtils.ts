@@ -5,27 +5,27 @@ import { es } from "date-fns/locale";
 const TIMEZONE = "America/Argentina/Buenos_Aires";
 
 /**
- * Retorna la fecha y hora actual ajustada a la zona horaria de Argentina.
+ * Returns current date and time adjusted to Argentina timezone.
  */
 export function getNowArg(): Date {
   return toZonedTime(new Date(), TIMEZONE);
 }
 
 /**
- * Retorna un objeto Date que representa exactamente las 00:00:00 del día
- * actual en la zona horaria de Argentina, convertido a UTC para
- * almacenarlo de manera estandarizada en la base de datos (Prisma).
+ * Returns a Date object representing 00:00:00 of the current day 
+ * in Argentina timezone, converted to UTC for standardized storage 
+ * in the database (Prisma).
  */
 export function getStartOfDayArg(): Date {
   const currentZonedTime = getNowArg();
   const startZoned = startOfDay(currentZonedTime);
-  // Se convierte el tiempo "local" de argentina a UTC para Prisma.
+  // Convert "local" Argentina time back to UTC for Prisma.
   return fromZonedTime(startZoned, TIMEZONE);
 }
 
 /**
- * Helper para formatear una fecha a string asegurando que se visualice
- * en el huso horario de Argentina.
+ * Helper to format a date to string ensuring it's displayed 
+ * according to Argentina's timezone.
  */
 export function formatDateArg(date: Date | string | number, formatStr: string = "yyyy-MM-dd"): string {
   return formatInTimeZone(new Date(date), TIMEZONE, formatStr, { locale: es });
