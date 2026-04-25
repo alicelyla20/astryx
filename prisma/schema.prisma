@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String   // Hashed
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id           String      @id @default(cuid())
+  name         String      @unique
+  colorHex     String      // e.g., "#8B5CF6"
+  energyLevel  EnergyLevel @default(MEDIUM)
+  isArchived   Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  
+  tasks        Task[]
+  savePoints   SavePoint[]
+}
+
+model SavePoint {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  content     String   // Plain text with line breaks
+  link        String?  // Optional clickable URL
+  createdAt   DateTime @default(now()) // Acts as history tracker
+}
+
+model DailyLog {
+  id                String   @id @default(cuid())
+  date              DateTime @unique // Locked to Argentina Time (00:00 to 23:59)
+  socialBattery     Int?     // 1 to 5
+  dissociationLevel Int?     // 1 to 5
+  tranquilityLevel  Int?     // 1 to 5
+  triggersContent   String?  // Always visible anchor text
+  
+  tasks             Task[]
+}
+
+model Task {
+  id            String          @id @default(cuid())
+  title         String
+  type          TaskType        // ROUTINE or TECHNICAL
+  energyLevel   EnergyLevel     @default(MEDIUM)
+  
+  categoryId    String?
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  
+  dailyLogId    String
+  dailyLog      DailyLog        @relation(fields: [dailyLogId], references: [id])
+  
+  status        TaskStatus      @default(PLANNED)
+  motivation    MotivationType? // Filled via pop-up on completion
+  
+  createdAt     DateTime        @default(now())
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskType {
+  ROUTINE
+  TECHNICAL
+}
+
+enum TaskStatus {
+  PLANNED
+  COMPLETED
+  PENDING
+}
+
+enum MotivationType {
+  GENUINE_INTEREST
+  OBLIGATION
+}
