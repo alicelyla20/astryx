@@ -3,27 +3,97 @@
 import { prisma } from "./prisma";
 import { revalidatePath } from "next/cache";
 
-export async function getCategoriesAction() {
+interface CategoryWithCount {
+  id: string;
+  name: string;
+  colorHex: string;
+  _count: {
+    chains: number;
+  };
+}
+
+export async function getCategoriesAction(): Promise<any[]> {
   return await prisma.category.findMany({
     where: { isArchived: false },
     include: {
-      savePoints: {
-        orderBy: { createdAt: "desc" },
-        take: 1, // Only fetch the most recent SavePoint
-      },
+      _count: {
+        select: { chains: true }
+      }
     },
     orderBy: { createdAt: "desc" },
+  }) as any[];
+}
+
+export async function getLatestEventsPerChainAction(): Promise<any[]> {
+  const chains = await (prisma as any).chain.findMany({
+    where: {
+      category: { isArchived: false }
+    },
+    include: {
+      category: true,
+      events: {
+        where: { isArchived: false },
+        orderBy: { createdAt: "desc" },
+        take: 1
+      }
+    }
+  });
+
+  return (chains as any[])
+    .filter((c: any) => c.events && c.events.length > 0)
+    .map((c: any) => ({
+      ...c.events[0],
+      chain: {
+        id: c.id,
+        name: c.name,
+        category: c.category
+      }
+    }))
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function updateCategoryColorAction(categoryId: string, colorHex: string): Promise<void> {
+  await prisma.category.update({
+    where: { id: categoryId },
+    data: { colorHex }
+  });
+  revalidatePath("/mapa");
+  revalidatePath("/archivo");
+}
+
+export async function getCategoryWithChainsAction(categoryId: string): Promise<any> {
+  return await prisma.category.findUnique({
+    where: { id: categoryId },
+    include: {
+      chains: {
+        include: {
+          events: {
+            where: { isArchived: false },
+            orderBy: { createdAt: "desc" }
+          }
+        },
+        orderBy: { createdAt: "desc" }
+      }
+    } as any
   });
 }
 
-export async function getCategoryHistoryAction(categoryId: string) {
-  return await prisma.savePoint.findMany({
-    where: { categoryId },
-    orderBy: { createdAt: "desc" },
-  });
+export async function getAllCategoriesWithChainsAction(): Promise<any[]> {
+  return await prisma.category.findMany({
+    where: { isArchived: false },
+    include: {
+      chains: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
+    } as any,
+    orderBy: { name: "asc" }
+  }) as any[];
 }
 
-export async function createCategoryAction(prevState: any, formData: FormData) {
+export async function createCategoryAction(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
   const name = formData.get("name") as string;
   const colorHex = formData.get("colorHex") as string;
 
@@ -44,7 +114,6 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
     revalidatePath("/mapa");
     return { success: true };
   } catch (error: any) {
-    // Unique constraint violation code for Prisma
     if (error.code === "P2002") {
       return { error: "Ya existe una categoría con este nombre." };
     }
@@ -52,16 +121,80 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
   }
 }
 
-export async function deleteCategoryAction(categoryId: string) {
+export async function deleteCategoryAction(categoryId: string): Promise<void> {
   await prisma.category.delete({
     where: { id: categoryId },
   });
   revalidatePath("/mapa");
+  revalidatePath("/archivo");
 }
 
-export async function deleteSavePointAction(savePointId: string) {
-  await prisma.savePoint.delete({
-    where: { id: savePointId },
+export async function toggleArchiveCategoryAction(categoryId: string, isArchived: boolean): Promise<void> {
+  await prisma.category.update({
+    where: { id: categoryId },
+    data: { isArchived },
   });
   revalidatePath("/mapa");
+  revalidatePath("/archivo");
+}
+
+export async function getArchivedCategoriesAction(): Promise<any[]> {
+  return await prisma.category.findMany({
+    where: { isArchived: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function createChainAction(categoryId: string, name: string): Promise<void> {
+  await (prisma as any).chain.create({
+    data: {
+      categoryId,
+      name: name.trim()
+    }
+  });
+  revalidatePath(`/mapa/${categoryId}`);
+}
+
+export async function createChainEventAction(
+  chainId: string, 
+  content: string, 
+  energyLevel: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM",
+  motivation?: "GENUINE_INTEREST" | "OBLIGATION",
+  link?: string
+): Promise<{ success: boolean; categoryId: string }> {
+  const chain = await (prisma as any).chain.findUnique({
+    where: { id: chainId },
+    select: { categoryId: true }
+  });
+  
+  if (!chain) throw new Error("Chain not found");
+
+  await (prisma as any).chainEvent.create({
+    data: {
+      chainId,
+      content,
+      energyLevel,
+      motivation,
+      link
+    }
+  });
+  
+  revalidatePath(`/mapa/${chain.categoryId}`);
+  revalidatePath("/"); // Dashboard ecos
+  return { success: true, categoryId: chain.categoryId };
+}
+
+export async function archiveChainEventAction(eventId: string, categoryId: string): Promise<void> {
+  await (prisma as any).chainEvent.update({
+    where: { id: eventId },
+    data: { isArchived: true }
+  });
+  revalidatePath(`/mapa/${categoryId}`);
+}
+
+export async function deleteChainEventAction(eventId: string, categoryId: string): Promise<void> {
+  await (prisma as any).chainEvent.delete({
+    where: { id: eventId }
+  });
+  revalidatePath(`/mapa/${categoryId}`);
 }

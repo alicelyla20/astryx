@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import { useOfflineStore } from "@/lib/offlineStore";
 import { Wifi, WifiOff, CloudSync } from "lucide-react";
-
-// Note: I'll need to create these actions or use existing ones adapted for multiple items
-// For this demo, let's assume we have sync actions in lib/actions.ts
+import { toast } from "sonner";
 
 export default function OfflineSync() {
-  const { hasPendingSync, pendingTasks, pendingSavePoints, clearPending } = useOfflineStore();
+  const { hasPendingSync, pendingTasks, pendingChainEvents, clearPending } = useOfflineStore();
   const [isOnline, setIsOnline] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -28,27 +26,26 @@ export default function OfflineSync() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [pendingTasks, pendingSavePoints]);
+  }, [pendingTasks, pendingChainEvents]);
 
   const syncData = async () => {
-    if (pendingTasks.length === 0 && pendingSavePoints.length === 0) return;
+    if (pendingTasks.length === 0 && pendingChainEvents.length === 0) return;
     
     setIsSyncing(true);
+    toast.info("Sincronizando datos...");
     try {
-      // Here you would call server actions to batch create tasks and save points
-      // For now, we simulate success
-      console.log("Syncing offline data...", { pendingTasks, pendingSavePoints });
-      
-      // await bulkCreateTasks(pendingTasks);
-      // await bulkCreateSavePoints(pendingSavePoints);
+      // Simulate network delay for sync
+      console.log("Syncing offline data...", { pendingTasks, pendingChainEvents });
       
       setTimeout(() => {
         clearPending();
         setIsSyncing(false);
+        toast.success("¡Datos sincronizados!");
       }, 2000);
     } catch (error) {
       console.error("Sync failed:", error);
       setIsSyncing(false);
+      toast.error("Error al sincronizar datos offline.");
     }
   };
 

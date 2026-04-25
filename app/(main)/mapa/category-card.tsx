@@ -1,9 +1,9 @@
 "use client";
 
+import { Archive as ArchiveIcon, Layers, Palette } from "lucide-react";
+import Link from "next/link";
+import { toggleArchiveCategoryAction, updateCategoryColorAction } from "@/lib/mapaActions";
 import { useState, useTransition } from "react";
-import { Trash2, History } from "lucide-react";
-import { parseTextWithLinks } from "@/lib/textUtils";
-import { deleteCategoryAction, deleteSavePointAction, getCategoryHistoryAction } from "@/lib/mapaActions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,42 +18,43 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-
-interface CategorySavePoint {
-  id: string;
-  content: string;
-  createdAt: Date;
-}
+import { toast } from "sonner";
 
 interface CategoryProps {
   category: {
     id: string;
     name: string;
     colorHex: string;
-    savePoints: CategorySavePoint[];
+    _count?: {
+      chains: number;
+    }
   };
 }
 
 export function CategoryCard({ category }: CategoryProps) {
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [history, setHistory] = useState<CategorySavePoint[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [openColor, setOpenColor] = useState(false);
+  const [currentColor, setCurrentColor] = useState(category.colorHex);
 
-  const handleOpenHistory = () => {
-    setIsHistoryOpen(true);
+  const handleSaveColor = () => {
     startTransition(async () => {
-      const data = await getCategoryHistoryAction(category.id);
-      setHistory(data);
+      try {
+        await updateCategoryColorAction(category.id, currentColor);
+        setOpenColor(false);
+        toast.success("Color actualizado.");
+      } catch (err) {
+        toast.error("Error al actualizar color.");
+      }
     });
   };
 
-  const recentSavePoint = category.savePoints[0];
-
   return (
-    <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-lg relative transition-all">
+    <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-lg relative group transition-all hover:border-zinc-700/50">
       {/* Dynamic Color Bar */}
       <div 
         className="h-2.5 w-full" 
@@ -61,113 +62,93 @@ export function CategoryCard({ category }: CategoryProps) {
       />
       
       <div className="p-6">
-        <div className="flex justify-between items-start mb-5">
-          <h3 className="text-2xl font-bold text-zinc-50 tracking-tight">{category.name}</h3>
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-2xl font-bold text-zinc-50 tracking-tight group-hover:text-purple-400 transition-colors">
+            {category.name}
+          </h3>
           
-          <AlertDialog>
-            <AlertDialogTrigger 
-              className="text-zinc-600 hover:text-red-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors focus-visible:ring-2 focus-visible:ring-red-400 outline-none"
-            >
-              <Trash2 className="w-5 h-5" />
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px]">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-xl">¿Estás seguro?</AlertDialogTitle>
-                <AlertDialogDescription className="text-zinc-400 text-base">
-                  Esta acción no se puede deshacer. Eliminará la categoría y todos sus puntos de guardado.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="mt-4">
-                <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-xl">
-                  Cancelar
-                </AlertDialogCancel>
-                <form action={() => deleteCategoryAction(category.id)}>
-                  <AlertDialogAction type="submit" className="bg-red-600 hover:bg-red-700 text-white rounded-xl w-full sm:w-auto">
-                    Eliminar
-                  </AlertDialogAction>
-                </form>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="flex items-center space-x-1">
+            {/* Custom Color Picker Dialog */}
+            <Dialog open={openColor} onOpenChange={setOpenColor}>
+              <DialogTrigger 
+                render={
+                  <button className="text-zinc-600 hover:text-purple-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors outline-none">
+                    <Palette className="w-5 h-5" />
+                  </button>
+                }
+              />
+              <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px]">
+                <DialogHeader>
+                  <DialogTitle>Personalizar Color</DialogTitle>
+                  <DialogDescription>Elige un color único para {category.name}.</DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col items-center space-y-6 py-6">
+                  <div 
+                    className="w-24 h-24 rounded-full border-4 border-zinc-800 shadow-2xl"
+                    style={{ backgroundColor: currentColor }}
+                  />
+                  <input 
+                    type="color" 
+                    value={currentColor}
+                    onChange={(e) => setCurrentColor(e.target.value)}
+                    className="w-full h-12 bg-transparent border-none cursor-pointer rounded-xl overflow-hidden"
+                  />
+                  <button
+                    onClick={handleSaveColor}
+                    disabled={isPending}
+                    className="w-full bg-zinc-50 hover:bg-zinc-200 text-zinc-950 font-black py-4 rounded-xl transition-all shadow-md flex justify-center items-center"
+                  >
+                    {isPending ? "Guardando..." : "Aplicar Color"}
+                  </button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Archive Dialog */}
+            <AlertDialog>
+              <AlertDialogTrigger 
+                render={
+                  <button className="text-zinc-600 hover:text-yellow-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors outline-none">
+                    <ArchiveIcon className="w-5 h-5" />
+                  </button>
+                }
+              />
+              <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-xl font-bold">¿Mandar a reposo?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-zinc-400 text-base">
+                    Esta categoría será ocultada del mapa, pero tus datos permanecerán seguros en el Archivo.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="mt-4">
+                  <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-xl">
+                    Cancelar
+                  </AlertDialogCancel>
+                  <form action={() => toggleArchiveCategoryAction(category.id, true)}>
+                    <AlertDialogAction type="submit" className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl w-full sm:w-auto">
+                      Archivar
+                    </AlertDialogAction>
+                  </form>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
 
-        {recentSavePoint ? (
-          <div className="bg-zinc-900/40 p-5 rounded-2xl border border-zinc-800/60 mb-5 shadow-inner">
-            <p className="text-xs text-purple-400 mb-3 font-mono tracking-wider">
-              ÚLTIMO GUARDADO: {new Date(recentSavePoint.createdAt).toLocaleDateString('es-AR')}
-            </p>
-            <div className="text-zinc-300 text-base leading-relaxed break-words whitespace-pre-wrap">
-              {parseTextWithLinks(recentSavePoint.content)}
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-center items-center h-28 bg-zinc-900/20 border border-zinc-800/30 rounded-2xl border-dashed mb-5">
-            <p className="text-zinc-500 italic text-sm font-medium">Sin puntos de guardado aún.</p>
-          </div>
-        )}
+        <div className="flex items-center space-x-3 text-zinc-500 mb-8 px-1">
+          <Layers className="w-4 h-4" />
+          <span className="text-sm font-medium tracking-wide">
+            {category._count?.chains ?? 0} {category._count?.chains === 1 ? 'Cadena activa' : 'Cadenas activas'}
+          </span>
+        </div>
 
-        <button 
-          onClick={handleOpenHistory}
-          className="w-full bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 font-semibold py-3 px-4 rounded-xl flex justify-center items-center transition-colors text-sm shadow-sm active:scale-[0.98]"
+        <Link 
+          href={`/mapa/${category.id}`}
+          className="w-full bg-zinc-900/60 hover:bg-zinc-800 text-zinc-100 font-bold py-4 px-4 rounded-2xl flex justify-center items-center transition-all shadow-sm active:scale-[0.98] border border-zinc-800/50"
         >
-          <History className="w-4 h-4 mr-2" />
-          Ver Historial
-        </button>
+          Explorar Mapa
+        </Link>
       </div>
-
-      {/* History Dialog */}
-      <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
-        <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[90vw] md:max-w-md max-h-[85vh] overflow-y-auto rounded-3xl p-6 scrollbar-hide">
-          <DialogHeader className="mb-4">
-            <DialogTitle className="text-2xl font-bold tracking-tight">Historial - {category.name}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {isPending ? (
-              <p className="text-zinc-500 text-center py-8 animate-pulse font-medium">Renderizando memorias...</p>
-            ) : history.length > 0 ? (
-              history.map((sp) => (
-                <div key={sp.id} className="bg-zinc-900/50 p-5 rounded-2xl border border-zinc-800 shadow-sm relative">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-xs text-purple-400 font-mono tracking-wide">
-                      {new Date(sp.createdAt).toLocaleString('es-AR')}
-                    </span>
-                    <AlertDialog>
-                      <AlertDialogTrigger 
-                        className="text-zinc-600 hover:text-red-400 transition-colors focus:ring-2 focus:ring-red-400 outline-none rounded-full p-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px]">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                          <AlertDialogDescription className="text-zinc-400">
-                            Esta acción no se puede deshacer. Se eliminará este punto de guardado de forma permanente.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 rounded-xl">Cancelar</AlertDialogCancel>
-                          <form action={async () => {
-                            await deleteSavePointAction(sp.id);
-                            setHistory(prev => prev.filter(item => item.id !== sp.id));
-                          }}>
-                            <AlertDialogAction type="submit" className="bg-red-600 hover:bg-red-700 text-white rounded-xl w-full sm:w-auto">Eliminar</AlertDialogAction>
-                          </form>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                  <div className="text-zinc-300 text-base leading-relaxed break-words whitespace-pre-wrap">
-                    {parseTextWithLinks(sp.content)}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-zinc-500 text-center py-8 font-medium">Historial vacío.</p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

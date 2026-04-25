@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createCategoryAction } from "@/lib/mapaActions";
+import { toast } from "sonner";
 
 export function CreateCategoryDialog() {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,10 @@ export function CreateCategoryDialog() {
   const handleCreate = async (prevState: any, formData: FormData) => {
     const result = await createCategoryAction(prevState, formData);
     if (result.success) {
+      toast.success("¡Categoría creada!");
       setOpen(false);
+    } else if (result.error) {
+      toast.error(result.error);
     }
     return result;
   };

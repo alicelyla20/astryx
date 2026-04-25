@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { EnergyLevel } from "@prisma/client";
 import { getDriftSuggestionAction, DriftSuggestion } from "@/lib/driftActions";
-import { Compass, RefreshCcw, CheckCircle2, Zap } from "lucide-react";
+import { Compass, RefreshCcw, CheckCircle2, Zap, Orbit } from "lucide-react";
 import Link from "next/link";
 
 type DriftState = "SELECT_ENERGY" | "SUGGESTION" | "EMPTY";
@@ -48,14 +48,14 @@ export default function DerivaPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 space-y-12 animate-in fade-in duration-500">
         <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-purple-600/10 rounded-full flex items-center justify-center mb-6">
-            <Zap className="w-8 h-8 text-purple-500" />
+          <div className="mx-auto w-16 h-16 bg-purple-600/10 rounded-full flex items-center justify-center mb-6 border border-purple-500/20">
+            <Orbit className="w-8 h-8 text-purple-500 animate-spin-slow" />
           </div>
           <h1 className="text-4xl font-black text-zinc-50 tracking-tighter">¿Cómo está tu energía?</h1>
           <p className="text-zinc-400 font-medium">Selecciona para recibir una deriva.</p>
         </div>
 
-        <div className="grid w-full gap-4">
+        <div className="grid w-full gap-4 max-w-sm">
           <button
             onClick={() => fetchSuggestion(EnergyLevel.LOW)}
             className="w-full bg-zinc-900/60 hover:bg-zinc-800 border border-zinc-800 py-6 rounded-3xl text-2xl font-black text-zinc-300 transition-all active:scale-[0.98] outline-none"
@@ -94,11 +94,16 @@ export default function DerivaPage() {
     );
   }
 
+  // Determine link based on suggestion type
+  const targetHref = suggestion?.type === "TASK" 
+    ? "/" 
+    : `/mapa/${suggestion?.categoryId}?chainId=${suggestion?.id}`;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] px-4 space-y-12 animate-in fade-in zoom-in-95 duration-500">
       <div className={`text-center space-y-6 max-w-sm transition-opacity duration-300 ${isLoading ? "opacity-30 blur-sm" : "opacity-100"}`}>
         <span className="text-xs font-black uppercase tracking-[0.2em] text-purple-500 bg-purple-500/10 px-4 py-1.5 rounded-full border border-purple-500/20">
-          {suggestion?.type === "TASK" ? "Misión Pendiente" : "Explorar Categoría"}
+          {suggestion?.type === "TASK" ? "Misión Pendiente" : "Explorar Cadena"}
         </span>
         
         <h2 className="text-5xl md:text-6xl font-black text-zinc-50 tracking-tighter leading-[1.1] break-words">
@@ -108,8 +113,8 @@ export default function DerivaPage() {
 
       <div className="grid w-full gap-4 max-w-sm">
         <Link
-          href={suggestion?.type === "TASK" ? "/" : "/mapa"}
-          className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-5 rounded-3xl text-xl flex items-center justify-center shadow-[0_0_25px_rgba(147,51,234,0.3)] transition-all active:scale-[0.95] outline-none"
+          href={targetHref}
+          className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-5 rounded-[2rem] text-xl flex items-center justify-center shadow-[0_15px_30px_rgba(147,51,234,0.3)] transition-all active:scale-[0.95] outline-none"
         >
           <CheckCircle2 className="w-6 h-6 mr-3" />
           Aceptar
@@ -118,7 +123,7 @@ export default function DerivaPage() {
         <button
           onClick={handleReroll}
           disabled={isLoading}
-          className="w-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 font-bold py-5 rounded-3xl text-xl flex items-center justify-center border border-zinc-800 transition-all active:scale-[0.95] disabled:opacity-50 outline-none"
+          className="w-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 font-bold py-5 rounded-[2rem] text-xl flex items-center justify-center border border-zinc-800 transition-all active:scale-[0.95] disabled:opacity-50 outline-none"
         >
           <RefreshCcw className={`w-5 h-5 mr-3 ${isLoading ? "animate-spin" : ""}`} />
           Tirar de nuevo

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// Local string literal types mirroring Prisma enums (avoiding import issues with Prisma v7)
+// Local string literal types mirroring Prisma enums
 type EnergyLevel = "LOW" | "MEDIUM" | "HIGH";
 type TaskType = "ROUTINE" | "TECHNICAL";
 
@@ -12,18 +12,19 @@ export type OfflineTask = {
   dailyLogId: string;
 };
 
-export type OfflineSavePoint = {
-  categoryId: string;
+export type OfflineChainEvent = {
+  chainId: string;
   content: string;
+  link?: string;
 };
 
 interface OfflineState {
   pendingTasks: OfflineTask[];
-  pendingSavePoints: OfflineSavePoint[];
+  pendingChainEvents: OfflineChainEvent[];
   hasPendingSync: boolean;
   
   addOfflineTask: (task: OfflineTask) => void;
-  addOfflineSavePoint: (sp: OfflineSavePoint) => void;
+  addOfflineChainEvent: (ev: OfflineChainEvent) => void;
   clearPending: () => void;
 }
 
@@ -31,7 +32,7 @@ export const useOfflineStore = create<OfflineState>()(
   persist(
     (set) => ({
       pendingTasks: [],
-      pendingSavePoints: [],
+      pendingChainEvents: [],
       hasPendingSync: false,
 
       addOfflineTask: (task) => set((state) => ({
@@ -39,14 +40,14 @@ export const useOfflineStore = create<OfflineState>()(
         hasPendingSync: true
       })),
 
-      addOfflineSavePoint: (sp) => set((state) => ({
-        pendingSavePoints: [...state.pendingSavePoints, sp],
+      addOfflineChainEvent: (ev) => set((state) => ({
+        pendingChainEvents: [...state.pendingChainEvents, ev],
         hasPendingSync: true
       })),
 
       clearPending: () => set({
         pendingTasks: [],
-        pendingSavePoints: [],
+        pendingChainEvents: [],
         hasPendingSync: false
       }),
     }),
