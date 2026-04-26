@@ -28,6 +28,7 @@ model Category {
 model Chain {
   id          String   @id @default(cuid())
   name        String
+  type        ChainType @default(SKILL)
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -53,18 +54,16 @@ model ChainEvent {
   energyLevel EnergyLevel @default(MEDIUM)
   motivation  MotivationType?
   
-  isArchived  Boolean  @default(false)
-  createdAt   DateTime @default(now()) // Acts as the event date
+  socialBattery     Int?     // 1 to 5, MOVED FROM DailyLog
+  dissociationLevel Int?     // 1 to 5, MOVED FROM DailyLog
+  tranquilityLevel  Int?     // 1 to 5, MOVED FROM DailyLog
+  isArchived        Boolean  @default(false) // Added for event-level archive
+  createdAt         DateTime @default(now()) // Acts as the event date
 }
 
 model DailyLog {
   id                String   @id @default(cuid())
-  date              DateTime @unique // Locked to Argentina Time (00:00 to 23:59)
-  socialBattery     Int?     // 1 to 5
-  dissociationLevel Int?     // 1 to 5
-  tranquilityLevel  Int?     // 1 to 5
-  triggersContent   String?  // Always visible anchor text
-  
+  date              DateTime @unique
   tasks             Task[]
 }
 
@@ -106,4 +105,17 @@ enum TaskStatus {
 enum MotivationType {
   GENUINE_INTEREST
   OBLIGATION
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  date      DateTime @unique // Locked to Argentina Time
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ChainType {
+  SKILL
+  ROUTINE
 }

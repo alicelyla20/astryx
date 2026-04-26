@@ -160,6 +160,9 @@ export async function createChainEventAction(
   content: string, 
   energyLevel: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM",
   motivation?: "GENUINE_INTEREST" | "OBLIGATION",
+  socialBattery?: number,
+  dissociationLevel?: number,
+  tranquilityLevel?: number,
   link?: string
 ): Promise<{ success: boolean; categoryId: string }> {
   const chain = await (prisma as any).chain.findUnique({
@@ -175,6 +178,9 @@ export async function createChainEventAction(
       content,
       energyLevel,
       motivation,
+      socialBattery,
+      dissociationLevel,
+      tranquilityLevel,
       link
     }
   });
@@ -197,4 +203,82 @@ export async function deleteChainEventAction(eventId: string, categoryId: string
     where: { id: eventId }
   });
   revalidatePath(`/mapa/${categoryId}`);
+}
+
+export async function updateChainEventAction(
+  eventId: string,
+  categoryId: string,
+  data: {
+    content: string;
+    socialBattery?: number | null;
+    dissociationLevel?: number | null;
+    tranquilityLevel?: number | null;
+    energyLevel?: "LOW" | "MEDIUM" | "HIGH";
+    motivation?: "GENUINE_INTEREST" | "OBLIGATION";
+    link?: string | null;
+  }
+): Promise<void> {
+  await (prisma as any).chainEvent.update({
+    where: { id: eventId },
+    data: {
+      content: data.content,
+      socialBattery: data.socialBattery,
+      dissociationLevel: data.dissociationLevel,
+      tranquilityLevel: data.tranquilityLevel,
+      energyLevel: data.energyLevel,
+      motivation: data.motivation,
+      link: data.link
+    }
+  });
+  revalidatePath(`/mapa/${categoryId}`);
+  revalidatePath("/");
+}
+
+export async function updateCategoryAction(categoryId: string, name: string): Promise<{ success?: boolean; error?: string }> {
+  if (!name || name.trim() === "") {
+    return { error: "El nombre es requerido." };
+  }
+  
+  try {
+    await prisma.category.update({
+      where: { id: categoryId },
+      data: { name: name.trim() }
+    });
+    revalidatePath("/mapa");
+    revalidatePath("/archivo");
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return { error: "Ya existe una categoría con ese nombre." };
+    }
+    return { error: "Error al actualizar la categoría." };
+  }
+}
+
+export async function updateChainAction(
+  chainId: string,
+  categoryId: string,
+  name: string,
+  type: "SKILL" | "ROUTINE"
+): Promise<{ success?: boolean; error?: string }> {
+  if (!name || name.trim() === "") {
+    return { error: "El nombre es requerido." };
+  }
+
+  try {
+    await (prisma as any).chain.update({
+      where: { id: chainId },
+      data: {
+        name: name.trim(),
+        type
+      }
+    });
+    revalidatePath(`/mapa/${categoryId}`);
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return { error: "Ya existe una cadena con ese nombre en esta categoría." };
+    }
+    return { error: "Error al actualizar la cadena." };
+  }
 }

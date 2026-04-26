@@ -68,7 +68,7 @@ export function TaskItem({ task }: TaskItemProps) {
         <div className="flex-1 min-w-0 pr-2">
           <label
             htmlFor={`task-${task.id}`}
-            className={`text-base font-bold tracking-tight cursor-pointer select-none transition-all block truncate ${
+            className={`text-base font-bold tracking-tight cursor-pointer select-none transition-all block break-words ${
               isCompleted ? "text-zinc-500 line-through decoration-zinc-600 font-medium" : "text-zinc-100"
             }`}
           >

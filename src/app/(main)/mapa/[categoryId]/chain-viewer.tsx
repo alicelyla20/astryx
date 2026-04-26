@@ -108,6 +108,7 @@ export function ChainViewer({ category }: ChainViewerProps) {
             <div key={chain.id} className="flex-[0_0_100%] min-w-0 h-full">
               <ChainColumn 
                 chain={chain} 
+                categoryId={category.id}
                 color={category.colorHex} 
                 targetEventId={chain.id === targetChainId ? targetEventId : undefined}
               />

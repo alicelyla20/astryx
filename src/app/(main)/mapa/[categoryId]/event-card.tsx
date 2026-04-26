@@ -6,8 +6,9 @@ import { es } from "date-fns/locale";
 import { Archive, Zap, Heart } from "lucide-react";
 import { archiveChainEventAction } from "@/lib/mapaActions";
 import { toast } from "sonner";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useParams } from "next/navigation";
+import { EditEventDialog } from "./edit-event-dialog";
 
 interface EventCardProps {
   event: {
@@ -15,6 +16,9 @@ interface EventCardProps {
     content: string;
     energyLevel: "LOW" | "MEDIUM" | "HIGH";
     motivation?: "GENUINE_INTEREST" | "OBLIGATION";
+    socialBattery?: number | null;
+    dissociationLevel?: number | null;
+    tranquilityLevel?: number | null;
     createdAt: Date;
   };
   color: string;
@@ -23,6 +27,7 @@ interface EventCardProps {
 export function EventCard({ event, color }: EventCardProps) {
   const formattedDate = format(new Date(event.createdAt), "d 'de' MMM, HH:mm", { locale: es });
   const [isPending, startTransition] = useTransition();
+  const [isEditing, setIsEditing] = useState(false);
   const params = useParams();
   const categoryId = params?.categoryId as string;
 
@@ -67,19 +72,52 @@ export function EventCard({ event, color }: EventCardProps) {
              )}
           </div>
           
-          <button 
-            onClick={handleArchive}
-            disabled={isPending}
-            className="text-zinc-600 active:text-yellow-500 p-1.5 rounded-lg bg-zinc-950/20 shadow-inner border border-zinc-800/50 transition-all disabled:opacity-30"
-            title="Archivar"
-          >
-            <Archive className="w-4 h-4" />
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="text-zinc-600 active:text-purple-500 p-1.5 rounded-lg bg-zinc-950/20 shadow-inner border border-zinc-800/50 transition-all text-[10px] font-bold uppercase"
+              title="Editar"
+            >
+              Editar
+            </button>
+            <button 
+              onClick={handleArchive}
+              disabled={isPending}
+              className="text-zinc-600 active:text-yellow-500 p-1.5 rounded-lg bg-zinc-950/20 shadow-inner border border-zinc-800/50 transition-all disabled:opacity-30"
+              title="Archivar"
+            >
+              <Archive className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="text-zinc-300 text-sm md:text-base leading-relaxed break-words whitespace-pre-wrap text-center mb-4">
           {parseTextWithLinks(event.content)}
         </div>
+        
+        {/* Metrics Row */}
+        {(event.socialBattery != null || event.dissociationLevel != null || event.tranquilityLevel != null) && (
+          <div className="flex items-center justify-center space-x-4 mb-4 mt-2">
+            {event.socialBattery != null && (
+              <div className="flex flex-col items-center">
+                <span className="text-[8px] font-bold text-purple-400/80 uppercase">Social</span>
+                <span className="text-xs font-black text-purple-300">{event.socialBattery}/5</span>
+              </div>
+            )}
+            {event.dissociationLevel != null && (
+              <div className="flex flex-col items-center">
+                <span className="text-[8px] font-bold text-emerald-400/80 uppercase">Disoc.</span>
+                <span className="text-xs font-black text-emerald-300">{event.dissociationLevel}/5</span>
+              </div>
+            )}
+            {event.tranquilityLevel != null && (
+              <div className="flex flex-col items-center">
+                <span className="text-[8px] font-bold text-blue-400/80 uppercase">Tranq.</span>
+                <span className="text-xs font-black text-blue-300">{event.tranquilityLevel}/5</span>
+              </div>
+            )}
+          </div>
+        )}
 
         <p 
           className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 text-center"
@@ -88,6 +126,9 @@ export function EventCard({ event, color }: EventCardProps) {
           {formattedDate}
         </p>
       </div>
+      {isEditing && (
+        <EditEventDialog event={event} categoryId={categoryId} onClose={() => setIsEditing(false)} />
+      )}
     </div>
   );
 }

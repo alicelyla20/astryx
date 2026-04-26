@@ -1,5 +1,4 @@
 import BottomTabBar from "@/components/BottomTabBar";
-import FloatingActionButton from "@/components/FloatingActionButton";
 import TopRightMenu from "@/components/TopRightMenu";
 import OfflineSync from "@/components/OfflineSync";
 import { Suspense } from "react";
@@ -14,9 +13,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {children}
       </div>
       
-      <Suspense fallback={null}>
-        <FloatingActionButton />
-      </Suspense>
       <BottomTabBar />
     </>
   );
