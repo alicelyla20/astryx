@@ -3,8 +3,8 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { ChainColumn } from "./chain-column";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface ChainViewerProps {
   category: {
@@ -16,77 +16,77 @@ interface ChainViewerProps {
 }
 
 export function ChainViewer({ category }: ChainViewerProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Logic to handle direct navigation from dashboard
+
   const targetChainId = searchParams.get("chainId");
   const targetEventId = searchParams.get("eventId");
-  
-  // Find index of targeted chain
-  const targetIndex = targetChainId 
+
+  const targetIndex = targetChainId
     ? category.chains.findIndex(c => c.id === targetChainId)
     : -1;
 
-  const initialIndex = targetIndex !== -1 
-    ? targetIndex 
+  const initialIndex = targetIndex !== -1
+    ? targetIndex
     : parseInt(searchParams.get("chainIndex") || "0");
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    align: "center",
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
     containScroll: "trimSnaps",
-    dragFree: false,
-    startIndex: initialIndex
+    dragFree: true,
+    startIndex: Math.min(initialIndex, Math.max(0, category.chains.length - 1)),
+    breakpoints: {
+      '(min-width: 1024px)': { active: false }
+    }
   });
 
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  // Use a ref to avoid stale closures in onSelect without adding selectedIndex as a dependency
+  const selectedIndexRef = useRef(selectedIndex);
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
+  // onSelect does NOT depend on selectedIndex — uses ref instead to break the loop
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     const index = emblaApi.selectedScrollSnap();
-    if (selectedIndex !== index) {
+
+    if (selectedIndexRef.current !== index) {
+      selectedIndexRef.current = index;
       setSelectedIndex(index);
     }
-    
-    // Prevent infinite loops by checking if we actually need to update URL
-    const currentIndex = searchParams.get("chainIndex");
-    const hasLegacyParams = searchParams.has("chainId") || searchParams.has("eventId");
-    
-    if (currentIndex === index.toString() && !hasLegacyParams) return;
-    
-    const params = new URLSearchParams(searchParams.toString());
+
+    const params = new URLSearchParams(window.location.search);
     params.set("chainIndex", index.toString());
     params.delete("chainId");
     params.delete("eventId");
-    
-    // window.history.replaceState avoids Next.js full re-renders for purely visual params
     window.history.replaceState(null, "", `?${params.toString()}`);
-  }, [emblaApi, searchParams, selectedIndex]);
+  }, [emblaApi]); // Only depends on emblaApi — no more loop
 
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
   }, [emblaApi, onSelect]);
 
-  // Handle live updates if params change
   useEffect(() => {
-    if (emblaApi && targetIndex !== -1 && targetIndex !== selectedIndex) {
+    if (emblaApi && targetIndex !== -1 && targetIndex !== selectedIndexRef.current) {
       emblaApi.scrollTo(targetIndex);
     }
-  }, [emblaApi, targetIndex, selectedIndex]);
+  }, [emblaApi, targetIndex]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-14rem)]">
-      
-      {/* Dynamic Header */}
-      <div className="flex items-center justify-between px-4 mb-8">
-        <button 
-          onClick={scrollPrev} 
+    <div className="flex flex-col h-full">
+
+      {/* Mobile Dynamic Header (Hidden on LG) */}
+      <div className="lg:hidden flex items-center justify-between px-4 mb-8">
+        <button
+          onClick={scrollPrev}
           className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 disabled:opacity-30 transition-all font-bold"
           disabled={!emblaApi?.canScrollPrev()}
         >
@@ -100,8 +100,8 @@ export function ChainViewer({ category }: ChainViewerProps) {
           </h1>
         </div>
 
-        <button 
-          onClick={scrollNext} 
+        <button
+          onClick={scrollNext}
           className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 disabled:opacity-30 transition-all font-bold"
           disabled={!emblaApi?.canScrollNext()}
         >
@@ -109,15 +109,21 @@ export function ChainViewer({ category }: ChainViewerProps) {
         </button>
       </div>
 
-      {/* Carousel */}
-      <div className="overflow-hidden flex-1" ref={emblaRef}>
-        <div className="flex h-full">
+      {/* Main Container: Carousel on mobile, Kanban on desktop */}
+      <div
+        className="overflow-x-auto lg:overflow-x-auto flex-1 px-4 lg:px-8 pb-10 custom-scrollbar"
+        ref={emblaRef}
+      >
+        <div className="flex h-full lg:space-x-8">
           {category.chains.map((chain) => (
-            <div key={chain.id} className="flex-[0_0_100%] min-w-0 h-full">
-              <ChainColumn 
-                chain={chain} 
+            <div
+              key={chain.id}
+              className="flex-[0_0_100%] lg:flex-[0_0_350px] min-w-0 h-full scroll-mt-20"
+            >
+              <ChainColumn
+                chain={chain}
                 categoryId={category.id}
-                color={category.colorHex} 
+                color={category.colorHex}
                 targetEventId={chain.id === targetChainId ? targetEventId : undefined}
               />
             </div>
@@ -125,14 +131,14 @@ export function ChainViewer({ category }: ChainViewerProps) {
         </div>
       </div>
 
-      {/* Dots Indicator */}
-      <div className="flex justify-center space-x-2 mt-6 pb-2">
+      {/* Mobile Dots Indicator (Hidden on LG) */}
+      <div className="lg:hidden flex justify-center space-x-2 mt-6 pb-2">
         {category.chains.map((_, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className={`h-1.5 rounded-full transition-all duration-500 ${
               i === selectedIndex ? "w-10 shadow-[0_0_10px_rgba(139,92,246,0.3)]" : "w-1.5 bg-zinc-800"
-            }`} 
+            }`}
             style={{ backgroundColor: i === selectedIndex ? category.colorHex : undefined }}
           />
         ))}

@@ -32,16 +32,20 @@ interface CreateEventDialogProps {
 export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDialogProps) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [selectedChainId, setSelectedChainId] = useState<string>(preselectedChainId || "");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
   const [motivation, setMotivation] = useState<MotivationType | "NONE">("NONE");
 
   useEffect(() => {
-    if (open && !preselectedChainId) {
-      getAllCategoriesWithChainsAction().then(setCategories);
+    if (open && !preselectedChainId && !categoriesLoaded) {
+      getAllCategoriesWithChainsAction().then(data => {
+        setCategories(data);
+        setCategoriesLoaded(true);
+      });
     }
-  }, [open, preselectedChainId]);
+  }, [open, preselectedChainId, categoriesLoaded]);
 
   useEffect(() => {
     if (preselectedChainId) setSelectedChainId(preselectedChainId);
@@ -66,7 +70,7 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
         content,
         energyLevel,
         motivation === "NONE" ? undefined : (motivation as MotivationType),
-        undefined, undefined, undefined, // battery, dissociation, tranquility (optional for now)
+        undefined, undefined, undefined,
         link || undefined
       );
 
@@ -89,21 +93,21 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
     }))
   );
 
+  const defaultTrigger = (
+    <div className="flex items-center space-x-2 bg-zinc-900 border border-zinc-800 hover:border-purple-600/50 px-4 py-3 rounded-2xl text-zinc-300 font-bold transition-all active:scale-95 shadow-lg cursor-pointer">
+      <Plus className="w-4 h-4 text-purple-500" />
+      <span>Añadir Eslabón</span>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger 
-        render={trigger as React.ReactElement || (
-          <button className="flex items-center space-x-2 bg-zinc-900 border border-zinc-800 hover:border-purple-600/50 px-4 py-3 rounded-2xl text-zinc-300 font-bold transition-all active:scale-95 shadow-lg group">
-            <Plus className="w-4 h-4 text-purple-500" />
-            <span>Añadir Eslabón</span>
-          </button>
-        )}
-      />
+      <DialogTrigger nativeButton={false} render={(trigger as React.ReactElement) ?? defaultTrigger} />
 
       <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90dvh]">
         <DialogHeader className="mb-6">
           <div className="w-16 h-16 bg-purple-600/10 rounded-2xl flex items-center justify-center mb-4 border border-purple-500/20 shadow-inner">
-             <Plus className="w-8 h-8 text-purple-500" />
+            <Plus className="w-8 h-8 text-purple-500" />
           </div>
           <DialogTitle className="text-3xl font-black tracking-tight">Nuevo Eslabón</DialogTitle>
           <DialogDescription className="text-zinc-500 font-medium">

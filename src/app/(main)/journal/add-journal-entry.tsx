@@ -18,7 +18,7 @@ export function AddJournalEntry() {
 
   return (
     <div className="bg-zinc-900/40 p-3 rounded-2xl border border-zinc-800/80 mb-6">
-      <span className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 pl-1">Recuperar Entrada Pasada</span>
+      <span className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 pl-1 italic">Abrir bitácora de fecha específica</span>
       <div className="flex items-center gap-2 w-full">
         <input 
           type="date"

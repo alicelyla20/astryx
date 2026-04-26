@@ -89,6 +89,5 @@ export async function createTaskAction(prevState: any, formData: FormData) {
   });
 
   revalidatePath("/");
-  revalidatePath("/historial");
   return { success: true };
 }

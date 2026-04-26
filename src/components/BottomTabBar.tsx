@@ -70,13 +70,6 @@ export default function BottomTabBar() {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-zinc-100 focus:bg-zinc-900 focus:text-white cursor-pointer py-3 rounded-xl"
-                onClick={() => router.push("/historial")}
-              >
-                <History className="mr-3 h-4 w-4 text-zinc-500" />
-                <span className="font-bold text-sm">Historial</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-zinc-100 focus:bg-zinc-900 focus:text-white cursor-pointer py-3 rounded-xl"
                 onClick={() => router.push("/archivo")}
               >
                 <Archive className="mr-3 h-4 w-4 text-zinc-500" />

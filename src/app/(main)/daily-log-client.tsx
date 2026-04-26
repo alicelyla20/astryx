@@ -74,8 +74,8 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
               <BarChart3 className="w-5 h-5 text-purple-500" />
             </div>
             <div className="text-left">
-              <h2 className="text-lg font-black text-zinc-50 tracking-tight leading-none">Métricas del Día</h2>
-              <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">Estado de Consciencia</p>
+              <h2 className="text-lg md:text-2xl font-black text-zinc-50 tracking-tight leading-none">Métricas del Día</h2>
+              <p className="text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-widest mt-1">Estado de Consciencia</p>
             </div>
           </div>
           {isMetricsOpen ? <ChevronUp className="text-zinc-500" /> : <ChevronDown className="text-zinc-500" />}
@@ -126,11 +126,11 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
             <div className="w-10 h-10 rounded-2xl bg-zinc-950 flex items-center justify-center border border-zinc-800">
               <Binary className="w-5 h-5 text-zinc-500" />
             </div>
-            <h2 className="text-lg font-black text-zinc-50 tracking-tight">Anclaje de Realidad</h2>
+            <h2 className="text-lg md:text-2xl font-black text-zinc-50 tracking-tight">Anclaje de Realidad</h2>
         </div>
         <Textarea 
           placeholder="Anota si la realidad se alteró o hubo cambios..."
-          className="min-h-[140px] bg-zinc-950/50 border-zinc-800 text-zinc-100 text-base resize-none focus-visible:ring-purple-600 rounded-2xl leading-relaxed placeholder:text-zinc-700 p-4"
+          className="min-h-[140px] md:min-h-[200px] bg-zinc-950/50 border-zinc-800 text-zinc-100 text-base md:text-lg resize-none focus-visible:ring-purple-600 rounded-2xl leading-relaxed placeholder:text-zinc-700 p-4 md:p-6"
           value={triggersContent}
           onChange={handleTriggersChange}
         />

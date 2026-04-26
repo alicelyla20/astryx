@@ -27,6 +27,7 @@ import { TaskType, EnergyLevel } from "@prisma/client";
 export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselectedCategoryId?: string, trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [taskType, setTaskType] = useState<string>(TaskType.TECHNICAL);
   const [energyLevel, setEnergyLevel] = useState<string>(EnergyLevel.MEDIUM);
@@ -41,10 +42,13 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
   }, [open]);
 
   useEffect(() => {
-    if (open) {
-      getAllCategoriesWithChainsAction().then(setCategories);
+    if (open && !categoriesLoaded) {
+      getAllCategoriesWithChainsAction().then(data => {
+        setCategories(data);
+        setCategoriesLoaded(true);
+      });
     }
-  }, [open]);
+  }, [open, categoriesLoaded]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -91,16 +95,16 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger 
-        render={trigger as React.ReactElement || (
-          <button 
-            className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm"
-          >
+      {trigger ? (
+        <DialogTrigger nativeButton={false} render={trigger as React.ReactElement} />
+      ) : (
+        <DialogTrigger render={
+          <button className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm">
             <Plus className="w-4 h-4 text-purple-500" />
             <span>Planificar Nueva Misión</span>
           </button>
-        )}
-      />
+        } />
+      )}
       
       <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2rem] p-8 shadow-2xl overflow-y-auto max-h-[90dvh]">
         <DialogHeader className="mb-6">

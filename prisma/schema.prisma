@@ -29,6 +29,7 @@ model Chain {
   id          String   @id @default(cuid())
   name        String
   type        ChainType @default(SKILL)
+  energyLevel EnergyLevel @default(MEDIUM)
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)

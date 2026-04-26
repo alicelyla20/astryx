@@ -3,10 +3,16 @@
 import { prisma } from "./prisma";
 import { revalidatePath } from "next/cache";
 
-export async function getJournalsAction() {
+export async function getJournalsAction(page = 1, limit = 20) {
   return await prisma.journalEntry.findMany({
-    orderBy: { date: "desc" }
+    orderBy: { date: "desc" },
+    skip: (page - 1) * limit,
+    take: limit
   });
+}
+
+export async function getJournalsCountAction() {
+  return await prisma.journalEntry.count();
 }
 
 export async function getTodayJournalAction() {
