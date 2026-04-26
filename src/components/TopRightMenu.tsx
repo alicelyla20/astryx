@@ -51,12 +51,12 @@ export default function TopRightMenu() {
               <Archive className="mr-2 h-4 w-4" />
               <span>Archivo</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-zinc-800" />
+
             <DropdownMenuItem 
               className="text-zinc-100 focus:bg-zinc-800 focus:text-white cursor-pointer py-2.5"
               onClick={() => router.push("/perfil")}
             >
-              <User className="mr-2 h-4 w-4" />
+              <Settings className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-zinc-800" />

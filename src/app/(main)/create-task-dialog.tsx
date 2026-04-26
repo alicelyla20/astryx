@@ -24,10 +24,21 @@ import { createTaskAction } from "@/lib/dailyLogActions";
 import { toast } from "sonner";
 import { TaskType, EnergyLevel } from "@prisma/client";
 
-export function CreateTaskDialog() {
+export function CreateTaskDialog({ preselectedCategoryId }: { preselectedCategoryId?: string }) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [isPending, setIsPending] = useState(false);
+  const [taskType, setTaskType] = useState<string>(TaskType.TECHNICAL);
+  const [energyLevel, setEnergyLevel] = useState<string>(EnergyLevel.MEDIUM);
+  const [selectedChainId, setSelectedChainId] = useState<string>("");
+
+  useEffect(() => {
+    if (!open) {
+      setTaskType(TaskType.TECHNICAL);
+      setEnergyLevel(EnergyLevel.MEDIUM);
+      setSelectedChainId("");
+    }
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -58,9 +69,25 @@ export function CreateTaskDialog() {
   const allChains = categories.flatMap(cat => 
     cat.chains.map((chain: any) => ({
       ...chain,
+      categoryId: cat.id,
       categoryName: cat.name
     }))
   );
+
+  const displayChains = preselectedCategoryId 
+    ? allChains.filter(c => c.categoryId === preselectedCategoryId)
+    : allChains;
+
+  const typeMap: Record<string, string> = {
+    [TaskType.TECHNICAL]: "Técnica",
+    [TaskType.ROUTINE]: "Rutina"
+  };
+
+  const energyMap: Record<string, string> = {
+    [EnergyLevel.LOW]: "Baja",
+    [EnergyLevel.MEDIUM]: "Media",
+    [EnergyLevel.HIGH]: "Alta"
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,7 +114,7 @@ export function CreateTaskDialog() {
             <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Título de la Misión</Label>
             <Input
               name="title"
-              placeholder="Ej: Resolver bugs de UX, 30 min de práctica..."
+              placeholder="Ej: Acomodar la habitación, 30 min de estiramiento..."
               required
               className="bg-zinc-900 border-zinc-800 text-zinc-100 h-14 rounded-2xl px-5 text-lg placeholder:text-zinc-700"
             />
@@ -96,9 +123,9 @@ export function CreateTaskDialog() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Tipo</Label>
-              <Select name="type" defaultValue={TaskType.TECHNICAL}>
+              <Select name="type" value={taskType} onValueChange={(val) => setTaskType(val || TaskType.TECHNICAL)}>
                 <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
-                  <SelectValue />
+                  <span className="font-bold">{typeMap[taskType]}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
                   <SelectItem value={TaskType.TECHNICAL}>Técnica</SelectItem>
@@ -109,9 +136,9 @@ export function CreateTaskDialog() {
 
             <div className="space-y-2">
               <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Energía</Label>
-              <Select name="energyLevel" defaultValue={EnergyLevel.MEDIUM}>
+              <Select name="energyLevel" value={energyLevel} onValueChange={(val) => setEnergyLevel(val || EnergyLevel.MEDIUM)}>
                 <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
-                  <SelectValue />
+                  <span className="font-bold">{energyMap[energyLevel]}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
                   <SelectItem value={EnergyLevel.LOW}>Baja</SelectItem>
@@ -124,16 +151,22 @@ export function CreateTaskDialog() {
 
           <div className="space-y-2">
             <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Cadena Origen</Label>
-            <Select name="chainId" required>
+            <Select name="chainId" value={selectedChainId} onValueChange={(val) => setSelectedChainId(val || "")} required>
               <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-14 rounded-2xl px-5">
-                <SelectValue placeholder="Selecciona una cadena..." />
+                <span className={!selectedChainId ? "text-zinc-400" : "font-bold"}>
+                  {selectedChainId 
+                    ? displayChains.find(c => c.id === selectedChainId)?.name || "Seleccionar..." 
+                    : "Selecciona una cadena..."}
+                </span>
               </SelectTrigger>
               <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-h-[300px]">
-                {allChains.map((chain: any) => (
+                {displayChains.map((chain: any) => (
                   <SelectItem key={chain.id} value={chain.id}>
                     <div className="flex flex-col items-start">
                       <span className="font-bold">{chain.name}</span>
-                      <span className="text-[10px] text-zinc-500 uppercase tracking-tighter">{chain.categoryName}</span>
+                      {!preselectedCategoryId && (
+                        <span className="text-[10px] text-zinc-500 uppercase tracking-tighter">{chain.categoryName}</span>
+                      )}
                     </div>
                   </SelectItem>
                 ))}

@@ -15,7 +15,8 @@ export const metadata: Metadata = {
     title: "Astryx",
   },
   icons: {
-    apple: "/apple-touch-icon.png",
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 
@@ -33,9 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark h-full antialiased">
-      <body className={`${inter.className} min-h-screen bg-zinc-950 text-zinc-50 flex flex-col`}>
+      <body className={`${inter.className} min-h-screen bg-zinc-950 text-zinc-50 flex flex-col overflow-x-hidden`}>
         <Toaster theme="dark" position="top-center" expand={true} richColors />
-        <main className="flex-1 w-full max-w-md mx-auto min-h-screen bg-zinc-950 relative shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-zinc-900/50">
+        <main className="flex-1 w-full max-w-md mx-auto min-h-screen bg-zinc-950 relative shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-zinc-900/50 overflow-x-hidden">
           {children}
         </main>
       </body>

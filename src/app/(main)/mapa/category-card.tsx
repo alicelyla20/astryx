@@ -1,9 +1,10 @@
 "use client";
 
-import { Archive as ArchiveIcon, Layers, Palette } from "lucide-react";
+import { Archive as ArchiveIcon, Layers, Palette, Edit2 } from "lucide-react";
 import Link from "next/link";
 import { toggleArchiveCategoryAction, updateCategoryColorAction } from "@/lib/mapaActions";
 import { useState, useTransition } from "react";
+import { EditCategoryDialog } from "./edit-category-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ interface CategoryProps {
 export function CategoryCard({ category }: CategoryProps) {
   const [isPending, startTransition] = useTransition();
   const [openColor, setOpenColor] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [currentColor, setCurrentColor] = useState(category.colorHex);
 
   const handleSaveColor = () => {
@@ -68,6 +70,20 @@ export function CategoryCard({ category }: CategoryProps) {
           </h3>
           
           <div className="flex items-center space-x-1">
+            {/* Edit Category Dialog */}
+            <button 
+              onClick={() => setOpenEdit(true)}
+              className="text-zinc-600 hover:text-purple-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors outline-none"
+              title="Editar Categoría"
+            >
+              <Edit2 className="w-5 h-5" />
+            </button>
+            <EditCategoryDialog 
+              category={category} 
+              open={openEdit} 
+              onOpenChange={setOpenEdit} 
+            />
+
             {/* Custom Color Picker Dialog */}
             <Dialog open={openColor} onOpenChange={setOpenColor}>
               <DialogTrigger 

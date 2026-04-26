@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Map, Compass } from "lucide-react";
+import { Calendar, Map, Compass, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,11 +10,12 @@ export default function BottomTabBar() {
   const tabs = [
     { href: "/", label: "Hoy", icon: Calendar },
     { href: "/mapa", label: "Mapa", icon: Map },
+    { href: "/journal", label: "Diario", icon: BookOpen },
     { href: "/deriva", label: "Deriva", icon: Compass },
   ];
 
   return (
-    <nav className="fixed bottom-0 w-full max-w-md mx-auto z-50 bg-zinc-950/90 border-t border-zinc-900 backdrop-blur-lg pb-safe">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-zinc-950/90 border-t border-zinc-900 backdrop-blur-lg pb-safe">
       <div className="flex justify-around items-center h-16">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
