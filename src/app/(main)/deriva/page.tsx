@@ -5,6 +5,7 @@ import { EnergyLevel } from "@prisma/client";
 import { getDriftSuggestionAction, DriftSuggestion } from "@/lib/driftActions";
 import { Compass, RefreshCcw, CheckCircle2, Zap, Orbit } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 type DriftState = "SELECT_ENERGY" | "SUGGESTION" | "EMPTY";
 
@@ -48,8 +49,9 @@ export default function DerivaPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 space-y-12 animate-in fade-in duration-500">
         <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-purple-600/10 rounded-full flex items-center justify-center mb-6 border border-purple-500/20">
-            <Orbit className="w-8 h-8 text-purple-500 animate-spin-slow" />
+          <div className="mx-auto w-24 h-24 bg-purple-600/10 rounded-[2.5rem] flex items-center justify-center mb-6 border border-purple-500/20 shadow-[0_0_30px_rgba(147,51,234,0.1)] relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-50" />
+            <Image src="/rabbit.png" alt="Astryx Logo" width={48} height={48} className="object-contain mix-blend-screen drop-shadow-[0_0_15px_rgba(147,51,234,0.4)] transition-transform duration-700 group-hover:scale-110" />
           </div>
           <h1 className="text-4xl font-black text-zinc-50 tracking-tighter">¿Cómo está tu energía?</h1>
           <p className="text-zinc-400 font-medium">Selecciona para recibir una deriva.</p>

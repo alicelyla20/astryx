@@ -2,7 +2,7 @@ import { getCategoryWithChainsAction } from "@/lib/mapaActions";
 import { ChainViewer } from "./chain-viewer";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Link2 } from "lucide-react";
 import { CreateChainDialog } from "./create-chain-dialog";
 
 interface ChainPageProps {
@@ -45,7 +45,7 @@ export default async function ChainPage({ params }: ChainPageProps) {
         ) : (
           <div className="flex flex-col items-center justify-center h-[60vh] px-8 text-center space-y-6">
             <div className="w-20 h-20 bg-zinc-900/50 rounded-full border-2 border-zinc-800 border-dashed flex items-center justify-center">
-               <span className="text-4xl">⛓️</span>
+               <Link2 className="w-10 h-10 text-zinc-600" />
             </div>
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-zinc-100 italic">Mapa sin Cadenas</h3>

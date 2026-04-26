@@ -47,16 +47,24 @@ export function ChainViewer({ category }: ChainViewerProps) {
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     const index = emblaApi.selectedScrollSnap();
-    setSelectedIndex(index);
+    if (selectedIndex !== index) {
+      setSelectedIndex(index);
+    }
     
-    // Clear targeted IDs once we arrive
+    // Prevent infinite loops by checking if we actually need to update URL
+    const currentIndex = searchParams.get("chainIndex");
+    const hasLegacyParams = searchParams.has("chainId") || searchParams.has("eventId");
+    
+    if (currentIndex === index.toString() && !hasLegacyParams) return;
+    
     const params = new URLSearchParams(searchParams.toString());
     params.set("chainIndex", index.toString());
     params.delete("chainId");
     params.delete("eventId");
     
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, [emblaApi, router, searchParams]);
+    // window.history.replaceState avoids Next.js full re-renders for purely visual params
+    window.history.replaceState(null, "", `?${params.toString()}`);
+  }, [emblaApi, searchParams, selectedIndex]);
 
   useEffect(() => {
     if (!emblaApi) return;

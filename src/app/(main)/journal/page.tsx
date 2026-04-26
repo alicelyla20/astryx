@@ -3,14 +3,22 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { JournalClient } from "@/components/JournalClient";
 import { AddJournalEntry } from "./add-journal-entry";
+import Image from "next/image";
 
 export default async function JournalPage() {
   const logs = await getJournalsAction();
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8 pb-20 px-4 mt-8">
-      <header className="border-l-4 border-purple-600 pl-4 py-1">
-        <h1 className="text-3xl font-black text-white tracking-tight">Diario de Abordo</h1>
+      <header className="flex justify-between items-start pl-4 border-l-4 border-purple-600 ml-3 pr-2 mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">Diario de Abordo</h1>
+          <p className="text-sm text-zinc-500 font-medium tracking-wide">Bitácora de Pensamientos</p>
+        </div>
+        <div className="flex flex-col items-center justify-center opacity-80 pt-1">
+          <Image src="/rabbit.png" alt="Astryx Logo" width={36} height={36} className="object-contain mix-blend-screen opacity-90 drop-shadow-[0_0_10px_rgba(147,51,234,0.3)]" />
+          <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mt-1">Astryx</span>
+        </div>
       </header>
       
       <AddJournalEntry />

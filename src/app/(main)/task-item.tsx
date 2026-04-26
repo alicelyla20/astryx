@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { completeTaskAction } from "@/lib/taskActions";
+import { Heart, Anchor } from "lucide-react";
 import { TaskStatus, MotivationType } from "@prisma/client";
 
 interface TaskItemProps {
@@ -113,7 +114,7 @@ export function TaskItem({ task }: TaskItemProps) {
               disabled={isUpdating}
               className="w-full bg-zinc-900 hover:bg-purple-600/10 border border-zinc-800 hover:border-purple-600/50 py-5 rounded-2xl text-lg font-black text-zinc-100 transition-all active:scale-[0.98] flex items-center justify-center space-x-3 group/btn"
             >
-              <span className="text-2xl group-hover/btn:scale-125 transition-transform">✨</span>
+              <Heart className="w-6 h-6 group-hover/btn:scale-125 transition-transform text-purple-400" />
               <span>Por Gusto / Interés</span>
             </button>
             
@@ -122,7 +123,7 @@ export function TaskItem({ task }: TaskItemProps) {
               disabled={isUpdating}
               className="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 py-5 rounded-2xl text-lg font-bold text-zinc-500 transition-all active:scale-[0.98] flex items-center justify-center space-x-3"
             >
-              <span className="text-2xl">⚓</span>
+              <Anchor className="w-6 h-6 text-zinc-500" />
               <span>Por Obligación</span>
             </button>
           </div>
