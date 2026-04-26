@@ -69,7 +69,8 @@ export async function getCategoryWithChainsAction(categoryId: string): Promise<a
         include: {
           events: {
             where: { isArchived: false },
-            orderBy: { createdAt: "desc" }
+            orderBy: { createdAt: "desc" },
+            take: 30  // Limit to avoid loading all events at once
           },
           tasks: {
             where: { status: { not: "COMPLETED" } },
@@ -149,14 +150,14 @@ export async function getArchivedCategoriesAction(): Promise<any[]> {
   });
 }
 
-export async function createChainAction(categoryId: string, name: string): Promise<void> {
+export async function createChainAction(categoryId: string, name: string, energyLevel: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM"): Promise<void> {
   await (prisma as any).chain.create({
     data: {
       categoryId,
-      name: name.trim()
+      name: name.trim(),
+      energyLevel
     }
   });
-  revalidatePath(`/mapa/${categoryId}`);
 }
 
 export async function createChainEventAction(
@@ -263,7 +264,8 @@ export async function updateChainAction(
   chainId: string,
   categoryId: string,
   name: string,
-  type: "SKILL" | "ROUTINE"
+  type: "SKILL" | "ROUTINE",
+  energyLevel: "LOW" | "MEDIUM" | "HIGH"
 ): Promise<{ success?: boolean; error?: string }> {
   if (!name || name.trim() === "") {
     return { error: "El nombre es requerido." };
@@ -274,7 +276,8 @@ export async function updateChainAction(
       where: { id: chainId },
       data: {
         name: name.trim(),
-        type
+        type,
+        energyLevel
       }
     });
     revalidatePath(`/mapa/${categoryId}`);
@@ -285,4 +288,20 @@ export async function updateChainAction(
     }
     return { error: "Error al actualizar la cadena." };
   }
+}
+
+export async function getRandomChainByEnergyAction(energyLevel: "LOW" | "MEDIUM" | "HIGH"): Promise<any | null> {
+  const chains = await (prisma as any).chain.findMany({
+    where: {
+      energyLevel,
+      category: { isArchived: false }
+    },
+    include: {
+      category: true
+    }
+  });
+
+  if (chains.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * chains.length);
+  return chains[randomIndex];
 }

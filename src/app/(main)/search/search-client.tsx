@@ -26,7 +26,7 @@ export function SearchClient() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12 max-w-5xl mx-auto px-4 md:px-0">
       <form onSubmit={handleSearch} className="relative w-full group">
         <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
           <Search className="w-8 h-8 text-zinc-500 group-focus-within:text-purple-500 transition-colors" />
@@ -37,7 +37,7 @@ export function SearchClient() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Busca ideas, tareas, memorias..."
-          className="w-full bg-zinc-900/50 border-2 border-zinc-800 focus:border-purple-600 text-zinc-50 rounded-full h-20 pl-20 pr-8 text-2xl placeholder:text-zinc-600 outline-none transition-all shadow-xl"
+          className="w-full bg-zinc-900/50 border-2 border-zinc-800 focus:border-purple-600 text-zinc-50 rounded-full h-20 md:h-28 pl-20 md:pl-24 pr-8 text-2xl md:text-4xl placeholder:text-zinc-600 outline-none transition-all shadow-xl"
           autoFocus
           autoComplete="off"
         />
@@ -95,21 +95,18 @@ export function SearchClient() {
                 {results.tasks.map(task => {
                   const dateIso = task.dailyLog?.date ? new Date(task.dailyLog.date).toISOString().split('T')[0] : "";
                   return (
-                    <Link href={`/historial?date=${dateIso}`} key={task.id} className="block group">
-                      <div className="bg-zinc-900/40 hover:bg-zinc-800 border border-zinc-800/60 hover:border-zinc-700 p-5 rounded-2xl transition-all shadow-sm flex justify-between items-center">
-                        <div>
-                          <h3 className="text-lg font-bold text-zinc-100 mb-1 group-hover:text-purple-400 transition-colors">{task.title}</h3>
-                          <div className="flex items-center space-x-2 text-xs font-mono text-zinc-500">
-                            <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
-                              {task.type}
-                            </span>
-                            <span>•</span>
-                            <span>{dateIso}</span>
-                          </div>
+                    <div key={task.id} className="bg-zinc-900/40 border border-zinc-800/60 p-5 rounded-2xl flex justify-between items-center shadow-sm">
+                      <div>
+                        <h3 className="text-lg md:text-2xl font-bold text-zinc-100 mb-1">{task.title}</h3>
+                        <div className="flex items-center space-x-2 text-xs md:text-sm font-mono text-zinc-500">
+                          <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
+                            {task.type}
+                          </span>
+                          <span>•</span>
+                          <span>{dateIso}</span>
                         </div>
-                        <ArrowRight className="text-zinc-600 group-hover:text-purple-400 transition-colors" />
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
@@ -147,7 +144,7 @@ export function SearchClient() {
                              </span>
                           )}
                         </div>
-                        <div className="text-zinc-300 text-base leading-relaxed break-words whitespace-pre-wrap group-hover:text-white transition-colors">
+                        <div className="text-zinc-300 text-base md:text-xl leading-relaxed break-words whitespace-pre-wrap group-hover:text-white transition-colors">
                           {parseTextWithLinks(ev.content)}
                         </div>
                       </div>

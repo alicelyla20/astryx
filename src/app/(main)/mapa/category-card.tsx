@@ -65,7 +65,7 @@ export function CategoryCard({ category }: CategoryProps) {
       
       <div className="p-6">
         <div className="flex justify-between items-start mb-6">
-          <h3 className="text-2xl font-bold text-zinc-50 tracking-tight group-hover:text-purple-400 transition-colors">
+          <h3 className="text-2xl md:text-3xl font-bold text-zinc-50 tracking-tight group-hover:text-purple-400 transition-colors">
             {category.name}
           </h3>
           
@@ -153,7 +153,7 @@ export function CategoryCard({ category }: CategoryProps) {
 
         <div className="flex items-center space-x-3 text-zinc-500 mb-8 px-1">
           <Layers className="w-4 h-4" />
-          <span className="text-sm font-medium tracking-wide">
+          <span className="text-sm md:text-lg font-medium tracking-wide">
             {category._count?.chains ?? 0} {category._count?.chains === 1 ? 'Cadena activa' : 'Cadenas activas'}
           </span>
         </div>

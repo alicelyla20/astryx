@@ -25,29 +25,24 @@ export async function getDriftSuggestionAction(energyLevel: EnergyLevel): Promis
     select: {
       id: true,
       title: true,
-      chainId: true, // Needed for navigation if needed
+      chainId: true,
     },
   });
 
-  // Query unarchived chains (via category) with this energy level
-  // Note: Since energyLevel is on Category in schema, we look for categories with that level
-  const activeCategoriesWithChains = await (prisma as any).category.findMany({
+  // Query unarchived chains with this energy level directly
+  const activeChains = await (prisma as any).chain.findMany({
     where: {
-      isArchived: false,
       energyLevel,
+      category: {
+        isArchived: false
+      }
     },
-    include: {
-      chains: true
+    select: {
+      id: true,
+      name: true,
+      categoryId: true
     }
   });
-
-  const activeChains = activeCategoriesWithChains.flatMap((cat: any) => 
-    cat.chains.map((chain: any) => ({
-      id: chain.id,
-      name: chain.name,
-      categoryId: cat.id
-    }))
-  );
 
   // Combine into a generic list
   const suggestions: DriftSuggestion[] = [

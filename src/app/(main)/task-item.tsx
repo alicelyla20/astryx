@@ -69,7 +69,7 @@ export function TaskItem({ task }: TaskItemProps) {
         <div className="flex-1 min-w-0 pr-2">
           <label
             htmlFor={`task-${task.id}`}
-            className={`text-base font-bold tracking-tight cursor-pointer select-none transition-all block break-words ${
+            className={`text-base md:text-xl font-bold tracking-tight cursor-pointer select-none transition-all block break-words ${
               isCompleted ? "text-zinc-500 line-through decoration-zinc-600 font-medium" : "text-zinc-100"
             }`}
           >
@@ -78,10 +78,10 @@ export function TaskItem({ task }: TaskItemProps) {
           
           {task.chain && (
             <div className="flex items-center space-x-2 mt-1">
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{task.chain.name}</span>
+              <span className="text-[9px] md:text-xs font-black uppercase tracking-widest text-zinc-500">{task.chain.name}</span>
               <span className="w-1 h-1 rounded-full bg-zinc-700" />
               <span 
-                className="text-[9px] font-black uppercase tracking-widest"
+                className="text-[9px] md:text-xs font-black uppercase tracking-widest"
                 style={{ color: task.chain.category.colorHex }}
               >
                 {task.chain.category.name}

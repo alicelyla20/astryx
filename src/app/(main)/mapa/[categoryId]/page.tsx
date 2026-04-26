@@ -31,7 +31,7 @@ export default async function ChainPage({ params }: ChainPageProps) {
           </Link>
           <div>
             <h2 className="text-sm font-bold text-zinc-600 uppercase tracking-widest leading-none mb-1">Mapa</h2>
-            <h1 className="text-2xl font-black text-zinc-50 tracking-tighter leading-none">{category.name}</h1>
+            <h1 className="text-2xl md:text-4xl font-black text-zinc-50 tracking-tighter leading-none">{category.name}</h1>
           </div>
         </div>
 

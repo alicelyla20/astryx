@@ -3,7 +3,7 @@
 import { parseTextWithLinks } from "@/lib/textUtils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Archive, Zap, Heart } from "lucide-react";
+import { Archive, Zap, Heart, ExternalLink } from "lucide-react";
 import { archiveChainEventAction } from "@/lib/mapaActions";
 import { toast } from "sonner";
 import { useState, useTransition } from "react";
@@ -14,6 +14,7 @@ interface EventCardProps {
   event: {
     id: string;
     content: string;
+    link?: string | null;
     energyLevel: "LOW" | "MEDIUM" | "HIGH";
     motivation?: "GENUINE_INTEREST" | "OBLIGATION";
     socialBattery?: number | null;
@@ -91,9 +92,23 @@ export function EventCard({ event, color }: EventCardProps) {
           </div>
         </div>
 
-        <div className="text-zinc-300 text-sm md:text-base leading-relaxed break-words whitespace-pre-wrap text-center mb-4">
+        <div className="text-zinc-300 text-base md:text-lg leading-relaxed break-words whitespace-pre-wrap text-center mb-4">
           {parseTextWithLinks(event.content)}
         </div>
+
+        {/* Link */}
+        {event.link && (
+          <a
+            href={event.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 mb-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 hover:border-purple-600/40 hover:bg-purple-600/5 transition-all group/link text-xs font-bold text-zinc-500 hover:text-purple-400 truncate"
+            onClick={e => e.stopPropagation()}
+          >
+            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 group-hover/link:text-purple-400 transition-colors" />
+            <span className="truncate">{event.link.replace(/^https?:\/\//, '')}</span>
+          </a>
+        )}
         
         {/* Metrics Row */}
         {(event.socialBattery != null || event.dissociationLevel != null || event.tranquilityLevel != null) && (

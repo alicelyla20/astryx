@@ -19,33 +19,33 @@ export default async function ArchivoPage() {
         </div>
       </header>
 
-      <div className="grid gap-4 mt-8">
+      <div className="grid gap-6 mt-12 max-w-5xl mx-auto">
         {archivedCategories.length > 0 ? (
           archivedCategories.map((category) => (
             <div 
               key={category.id} 
-              className="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
+              className="bg-zinc-950 border border-zinc-800 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 shadow-lg flex flex-col md:flex-row gap-6 items-start md:items-center justify-between transition-all hover:border-zinc-700/50"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6">
                 <div 
-                  className="w-4 h-12 rounded-full hidden md:block" 
+                  className="w-4 h-16 rounded-full hidden md:block shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
                   style={{ backgroundColor: category.colorHex }} 
                 />
                 <div>
-                  <h3 className="text-xl font-bold text-zinc-300 line-through decoration-zinc-700 decoration-2">{category.name}</h3>
-                  <p className="text-sm text-zinc-500 mt-1">
+                  <h3 className="text-2xl md:text-4xl font-black text-zinc-300 line-through decoration-zinc-700 decoration-4 tracking-tighter">{category.name}</h3>
+                  <p className="text-sm md:text-lg text-zinc-500 mt-2 font-medium uppercase tracking-widest">
                     Archivada el {category.createdAt.toLocaleDateString("es-AR")}
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-2 w-full md:w-auto">
+              <div className="flex gap-3 w-full md:w-auto">
                 <form action={async () => {
                   "use server";
                   await deleteCategoryAction(category.id);
                 }} className="w-full md:w-auto">
-                  <button className="w-full bg-zinc-900 border border-zinc-800 text-red-400 hover:bg-zinc-800 font-medium py-3 px-4 rounded-xl flex justify-center items-center transition-colors">
-                    <Trash2 className="w-4 h-4" />
+                  <button className="w-full md:w-20 bg-zinc-900 border border-zinc-800 text-red-500 hover:bg-red-500/10 hover:border-red-500/30 font-bold py-4 md:py-6 rounded-2xl flex justify-center items-center transition-all active:scale-95 shadow-lg">
+                    <Trash2 className="w-6 h-6" />
                   </button>
                 </form>
 
@@ -53,8 +53,8 @@ export default async function ArchivoPage() {
                   "use server";
                   await toggleArchiveCategoryAction(category.id, false);
                 }} className="flex-1 md:flex-none">
-                  <button className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl flex justify-center items-center transition-colors">
-                    <ArchiveRestore className="w-5 h-5 mr-2" />
+                  <button className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 px-8 md:py-6 md:px-12 rounded-2xl flex justify-center items-center transition-all active:scale-95 shadow-[0_10px_20px_rgba(147,51,234,0.3)] text-lg md:text-2xl uppercase tracking-widest">
+                    <ArchiveRestore className="w-6 h-6 md:w-8 md:h-8 mr-3" />
                     Reactivar
                   </button>
                 </form>
