@@ -24,7 +24,7 @@ import { createTaskAction } from "@/lib/dailyLogActions";
 import { toast } from "sonner";
 import { TaskType, EnergyLevel } from "@prisma/client";
 
-export function CreateTaskDialog({ preselectedCategoryId }: { preselectedCategoryId?: string }) {
+export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselectedCategoryId?: string, trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [isPending, setIsPending] = useState(false);
@@ -92,11 +92,15 @@ export function CreateTaskDialog({ preselectedCategoryId }: { preselectedCategor
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger 
-        className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm"
-      >
-        <Plus className="w-4 h-4 text-purple-500" />
-        <span>Planificar Nueva Misión</span>
-      </DialogTrigger>
+        render={trigger as React.ReactElement || (
+          <button 
+            className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm"
+          >
+            <Plus className="w-4 h-4 text-purple-500" />
+            <span>Planificar Nueva Misión</span>
+          </button>
+        )}
+      />
       
       <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2rem] p-8 shadow-2xl overflow-y-auto max-h-[90dvh]">
         <DialogHeader className="mb-6">

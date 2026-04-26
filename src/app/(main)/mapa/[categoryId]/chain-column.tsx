@@ -5,6 +5,8 @@ import { EventCard } from "./event-card";
 import { Edit2 } from "lucide-react";
 import { EditChainDialog } from "./edit-chain-dialog";
 import { TaskItem } from "@/app/(main)/task-item";
+import { CreateEventDialog } from "./create-event-dialog";
+import { Plus } from "lucide-react";
 
 interface ChainColumnProps {
   chain: {
@@ -47,13 +49,15 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
         >
           {chain.name}
         </h2>
-        <button 
-          onClick={() => setOpenEdit(true)}
-          className="text-zinc-600 hover:text-purple-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors outline-none"
-          title="Editar Cadena"
-        >
-          <Edit2 className="w-5 h-5" />
-        </button>
+        <div className="flex items-center space-x-1">
+          <button 
+            onClick={() => setOpenEdit(true)}
+            className="text-zinc-600 hover:text-purple-400 p-1.5 rounded-full hover:bg-zinc-900 transition-colors outline-none"
+            title="Editar Cadena"
+          >
+            <Edit2 className="w-5 h-5" />
+          </button>
+        </div>
       </header>
 
       <EditChainDialog 
@@ -100,6 +104,18 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
             </div>
           ))
         )}
+
+        <div className="w-full flex justify-center pt-4 pb-10">
+          <CreateEventDialog 
+            preselectedChainId={chain.id} 
+            trigger={
+              <div className="flex items-center space-x-2 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/50 hover:border-zinc-700 px-5 py-3 rounded-2xl text-zinc-500 hover:text-zinc-300 font-bold transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
+                <Plus className="w-3 h-3" />
+                <span>Nuevo Eslabón</span>
+              </div>
+            }
+          />
+        </div>
 
         {chain.events.length === 0 && (!chain.tasks || chain.tasks.length === 0) && (
           <div className="flex flex-col items-center justify-center py-20 px-6 bg-zinc-900/10 border border-zinc-800/30 rounded-3xl border-dashed w-full max-w-sm mx-auto">

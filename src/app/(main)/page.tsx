@@ -8,8 +8,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Zap } from "lucide-react";
+import { Zap, Plus, Link as LinkIcon } from "lucide-react";
 import { CreateTaskDialog } from "./create-task-dialog";
+import { CreateEventDialog } from "./mapa/[categoryId]/create-event-dialog";
 
 export default async function HoyPage() {
   const [dailyLog, journalLog, latestEvents, categories] = await Promise.all([
@@ -33,6 +34,30 @@ export default async function HoyPage() {
           <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mt-1">Astryx</span>
         </div>
       </header>
+
+      {/* Quick Actions Area */}
+      <div className="px-4 flex gap-3 overflow-x-auto pb-4 scrollbar-hide no-scrollbar">
+        <CreateTaskDialog 
+          trigger={
+            <div className="flex-none flex items-center space-x-3 bg-zinc-900 border border-zinc-800 hover:border-purple-600/50 px-6 py-4 rounded-[1.5rem] text-zinc-300 font-bold transition-all active:scale-95 shadow-xl group whitespace-nowrap cursor-pointer">
+              <div className="w-8 h-8 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-600/20 transition-colors">
+                <Plus className="w-4 h-4 text-purple-500" />
+              </div>
+              <span>Planificar Misión</span>
+            </div>
+          }
+        />
+        <CreateEventDialog 
+          trigger={
+            <div className="flex-none flex items-center space-x-3 bg-zinc-900 border border-zinc-800 hover:border-purple-600/50 px-6 py-4 rounded-[1.5rem] text-zinc-300 font-bold transition-all active:scale-95 shadow-xl group whitespace-nowrap cursor-pointer">
+              <div className="w-8 h-8 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-600/20 transition-colors">
+                <LinkIcon className="w-4 h-4 text-purple-500" />
+              </div>
+              <span>Añadir Eslabón</span>
+            </div>
+          }
+        />
+      </div>
 
       <div className="px-3">
         <JournalClient initialContent={journalLog.content} />
@@ -96,30 +121,45 @@ export default async function HoyPage() {
       </section>
 
       <div className="space-y-12 px-3">
-        {categories.map((category: any) => {
-          const categoryTasks = dailyLog.tasks.filter(
-            (t: any) => t.chain.category.id === category.id
-          );
+        {categories.length > 0 ? (
+          categories.map((category: any) => {
+            const categoryTasks = dailyLog.tasks.filter(
+              (t: any) => t.chain.category.id === category.id
+            );
 
-          return (
-            <section key={category.id} className="space-y-6">
-              <div className="flex items-center justify-between px-1">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: category.colorHex }} />
-                  <h2 className="text-xl font-bold text-zinc-100 tracking-tight">{category.name}</h2>
+            return (
+              <section key={category.id} className="space-y-6">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: category.colorHex }} />
+                    <h2 className="text-xl font-bold text-zinc-100 tracking-tight">{category.name}</h2>
+                  </div>
                 </div>
-              </div>
-              <div className="grid gap-3">
-                {categoryTasks.length > 0 ? ( 
-                  categoryTasks.map((task: any) => ( <TaskItem key={task.id} task={task} /> )) 
-                ) : (
-                  <p className="text-zinc-600 text-sm italic px-1">No hay misiones planificadas en {category.name} para hoy.</p>
-                )}
-                <CreateTaskDialog preselectedCategoryId={category.id} />
-              </div>
-            </section>
-          );
-        })}
+                <div className="grid gap-3">
+                  {categoryTasks.length > 0 ? ( 
+                    categoryTasks.map((task: any) => ( <TaskItem key={task.id} task={task} /> )) 
+                  ) : (
+                    <p className="text-zinc-600 text-sm italic px-1">No hay misiones planificadas en {category.name} para hoy.</p>
+                  )}
+                  <CreateTaskDialog preselectedCategoryId={category.id} />
+                </div>
+              </section>
+            );
+          })
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 px-6 bg-zinc-900/10 border border-zinc-800/30 rounded-3xl border-dashed">
+            <h3 className="text-xl font-bold text-zinc-100 mb-2">Comienza tu Mapa</h3>
+            <p className="text-zinc-500 text-sm text-center max-w-xs mb-6">
+              Para planificar misiones, primero necesitas definir categorías y cadenas en tu mapa técnico.
+            </p>
+            <Link 
+              href="/mapa" 
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg active:scale-95"
+            >
+              Ir al Mapa
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
