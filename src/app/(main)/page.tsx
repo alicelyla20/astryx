@@ -5,6 +5,7 @@ import { formatDateArg, getNowArg } from "@/lib/dateUtils";
 import { TaskItem } from "./task-item";
 import { getLatestEventsPerChainAction, getCategoriesAction } from "@/lib/mapaActions";
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Zap } from "lucide-react";
@@ -22,9 +23,15 @@ export default async function HoyPage() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-12 pb-20 px-1">
-      <header className="pl-4 border-l-4 border-purple-600 ml-3">
-        <h1 className="text-4xl font-black text-zinc-50 tracking-tighter">Hoy</h1>
-        <p className="text-lg text-zinc-400 capitalize font-medium tracking-wide">{todayLabel}</p>
+      <header className="flex justify-between items-start pl-4 border-l-4 border-purple-600 ml-3 pr-2">
+        <div>
+          <h1 className="text-4xl font-black text-zinc-50 tracking-tighter">Hoy</h1>
+          <p className="text-lg text-zinc-400 capitalize font-medium tracking-wide">{todayLabel}</p>
+        </div>
+        <div className="flex flex-col items-center justify-center opacity-80 pt-1">
+          <Image src="/rabbit.png" alt="Astryx Logo" width={36} height={36} className="object-contain mix-blend-screen opacity-90 drop-shadow-[0_0_10px_rgba(147,51,234,0.3)]" />
+          <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mt-1">Astryx</span>
+        </div>
       </header>
 
       <div className="px-3">

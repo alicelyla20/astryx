@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { EventCard } from "./event-card";
 import { Edit2 } from "lucide-react";
 import { EditChainDialog } from "./edit-chain-dialog";
+import { TaskItem } from "@/app/(main)/task-item";
 
 interface ChainColumnProps {
   chain: {
@@ -11,6 +12,7 @@ interface ChainColumnProps {
     name: string;
     type?: string;
     events: any[];
+    tasks?: any[];
   };
   categoryId: string;
   color: string;
@@ -66,8 +68,17 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
         className="flex-1 overflow-y-auto space-y-12 pb-40 scrollbar-hide relative flex flex-col items-center pt-8"
       >
         
+        {/* Pending Tasks */}
+        {chain.tasks && chain.tasks.length > 0 && (
+          <div className="w-full flex flex-col space-y-4 mb-4 z-10 w-full px-2">
+            {chain.tasks.map((task: any) => (
+              <TaskItem key={task.id} task={task} />
+            ))}
+          </div>
+        )}
+
         {/* The Centered Chain Line (Seamless Eslabones) */}
-        {chain.events.length > 0 && (
+        {(chain.events.length > 0 || (chain.tasks && chain.tasks.length > 0)) && (
           <div 
             className="absolute left-1/2 -translate-x-1/2 top-4 bottom-0 w-3 -z-0 opacity-40 pointer-events-none"
             style={{ 
@@ -78,7 +89,7 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
           />
         )}
 
-        {chain.events.length > 0 ? (
+        {chain.events.length > 0 && (
           chain.events.map((event) => (
             <div 
               key={event.id} 
@@ -88,8 +99,10 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
               <EventCard event={event} color={color} />
             </div>
           ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-6 bg-zinc-900/10 border border-zinc-800/30 rounded-3xl border-dashed">
+        )}
+
+        {chain.events.length === 0 && (!chain.tasks || chain.tasks.length === 0) && (
+          <div className="flex flex-col items-center justify-center py-20 px-6 bg-zinc-900/10 border border-zinc-800/30 rounded-3xl border-dashed w-full max-w-sm mx-auto">
             <p className="text-zinc-600 text-sm italic">Sin eventos en esta cadena.</p>
           </div>
         )}

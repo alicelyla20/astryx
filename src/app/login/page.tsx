@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { loginAction } from "@/lib/actions";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,11 +13,18 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[100dvh] p-4 text-zinc-50 relative z-10 w-full overflow-hidden">
       <Card className="w-full max-w-sm bg-zinc-950 border-zinc-900 shadow-[0_0_20px_rgba(147,51,234,0.15)] relative z-20">
-        <CardHeader className="space-y-2 text-center pb-6">
-          <CardTitle className="text-3xl font-black tracking-tighter text-zinc-50">Astryx</CardTitle>
-          <CardDescription className="text-zinc-400 font-medium tracking-wide">
-            Identidad Requerida
-          </CardDescription>
+        <CardHeader className="space-y-4 text-center pb-6">
+          <div className="flex justify-center">
+            <div className="relative w-24 h-24 bg-zinc-900/50 rounded-[2rem] border border-zinc-800 p-2 shadow-2xl overflow-hidden flex items-center justify-center">
+              <Image src="/rabbit.png" alt="Astryx Logo" width={64} height={64} className="object-contain drop-shadow-[0_0_15px_rgba(147,51,234,0.5)]" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-4xl font-black tracking-tighter text-zinc-50">Astryx</CardTitle>
+            <CardDescription className="text-zinc-400 font-medium tracking-wide">
+              Identidad Requerida
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-5">

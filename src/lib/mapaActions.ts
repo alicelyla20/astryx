@@ -70,6 +70,10 @@ export async function getCategoryWithChainsAction(categoryId: string): Promise<a
           events: {
             where: { isArchived: false },
             orderBy: { createdAt: "desc" }
+          },
+          tasks: {
+            where: { status: { not: "COMPLETED" } },
+            orderBy: { createdAt: "asc" }
           }
         },
         orderBy: { createdAt: "desc" }
