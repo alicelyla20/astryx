@@ -17,14 +17,14 @@ export function CreateTemplateDialog() {
     if (!name.trim()) return;
 
     startTransition(async () => {
-      try {
-        await createTemplateAction(name, description);
+      const result = await createTemplateAction(name, description);
+      if (result.success) {
         toast.success("Plantilla creada exitosamente.");
         setOpen(false);
         setName("");
         setDescription("");
-      } catch (err: any) {
-        toast.error(err.message || "Error al crear la plantilla.");
+      } else {
+        toast.error(result.error);
       }
     });
   };

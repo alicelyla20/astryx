@@ -37,10 +37,10 @@ export async function createTemplateAction(name: string, description?: string) {
       data: { name, description }
     });
     revalidatePath("/templates");
-    return tpl;
+    return { success: true, data: tpl };
   } catch (error: any) {
     console.error("CRITICAL ERROR: Failed to create MissionTemplate.", error);
-    throw new Error(`Database Error: ${error?.message || "Unknown error"}`);
+    return { success: false, error: error?.message || "Error desconocido en la base de datos." };
   }
 }
 
@@ -77,9 +77,10 @@ export async function createTemplateItemAction(
       }
     });
     revalidatePath(`/templates/${templateId}`);
+    return { success: true };
   } catch (error: any) {
     console.error("CRITICAL ERROR: Failed to create TemplateItem.", error);
-    throw new Error(`Database Error: ${error?.message || "Unknown error"}`);
+    return { success: false, error: error?.message || "Error desconocido al crear el ítem." };
   }
 }
 
