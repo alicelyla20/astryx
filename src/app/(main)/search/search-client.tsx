@@ -5,6 +5,7 @@ import { Search, Loader2, ArrowRight } from "lucide-react";
 import { globalSearchAction } from "@/lib/searchActions";
 import Link from "next/link";
 import { parseTextWithLinks } from "@/lib/textUtils";
+import { taskTypeMap } from "@/lib/translations";
 
 export function SearchClient() {
   const [query, setQuery] = useState("");
@@ -100,7 +101,7 @@ export function SearchClient() {
                         <h3 className="text-lg md:text-2xl font-bold text-zinc-100 mb-1">{task.title}</h3>
                         <div className="flex items-center space-x-2 text-xs md:text-sm font-mono text-zinc-500">
                           <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
-                            {task.type}
+                            {taskTypeMap[task.type as keyof typeof taskTypeMap]}
                           </span>
                           <span>•</span>
                           <span>{dateIso}</span>

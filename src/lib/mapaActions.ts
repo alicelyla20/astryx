@@ -139,6 +139,7 @@ export async function toggleArchiveCategoryAction(categoryId: string, isArchived
     where: { id: categoryId },
     data: { isArchived },
   });
+  revalidatePath("/");
   revalidatePath("/mapa");
   revalidatePath("/archivo");
 }
@@ -168,11 +169,13 @@ export async function createChainEventAction(
   socialBattery?: number,
   dissociationLevel?: number,
   tranquilityLevel?: number,
+  voidLevel?: number,
+  type?: "SKILL" | "ROUTINE",
   link?: string
 ): Promise<{ success: boolean; categoryId: string }> {
   const chain = await (prisma as any).chain.findUnique({
     where: { id: chainId },
-    select: { categoryId: true }
+    select: { categoryId: true, type: true }
   });
   
   if (!chain) throw new Error("Chain not found");
@@ -186,6 +189,8 @@ export async function createChainEventAction(
       socialBattery,
       dissociationLevel,
       tranquilityLevel,
+      voidLevel,
+      type: type || chain.type,
       link
     }
   });
@@ -201,6 +206,7 @@ export async function archiveChainEventAction(eventId: string, categoryId: strin
     data: { isArchived: true }
   });
   revalidatePath(`/mapa/${categoryId}`);
+  revalidatePath("/");
 }
 
 export async function deleteChainEventAction(eventId: string, categoryId: string): Promise<void> {
@@ -218,8 +224,10 @@ export async function updateChainEventAction(
     socialBattery?: number | null;
     dissociationLevel?: number | null;
     tranquilityLevel?: number | null;
+    voidLevel?: number | null;
     energyLevel?: "LOW" | "MEDIUM" | "HIGH";
     motivation?: "GENUINE_INTEREST" | "OBLIGATION";
+    type?: "SKILL" | "ROUTINE";
     link?: string | null;
   }
 ): Promise<void> {
@@ -230,8 +238,10 @@ export async function updateChainEventAction(
       socialBattery: data.socialBattery,
       dissociationLevel: data.dissociationLevel,
       tranquilityLevel: data.tranquilityLevel,
+      voidLevel: data.voidLevel,
       energyLevel: data.energyLevel,
       motivation: data.motivation,
+      type: data.type,
       link: data.link
     }
   });

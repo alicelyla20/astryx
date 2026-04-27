@@ -33,6 +33,24 @@ export async function completeTaskAction(taskId: string, motivation: MotivationT
 }
 
 /**
+ * Reverts task completion.
+ */
+export async function uncompleteTaskAction(taskId: string) {
+  const task = await (prisma as any).task.findUnique({ where: { id: taskId } });
+  if (!task) return;
+
+  await (prisma as any).task.update({
+    where: { id: taskId },
+    data: {
+      status: TaskStatus.PENDING,
+      motivation: null,
+    },
+  });
+
+  revalidatePath("/");
+}
+
+/**
  * Deletes a task.
  */
 export async function deleteTaskAction(taskId: string) {

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import { useParams } from "next/navigation";
 import { EditEventDialog } from "./edit-event-dialog";
+import { energyLevelMap, motivationTypeMap } from "@/lib/translations";
 
 interface EventCardProps {
   event: {
@@ -17,15 +18,17 @@ interface EventCardProps {
     link?: string | null;
     energyLevel: "LOW" | "MEDIUM" | "HIGH";
     motivation?: "GENUINE_INTEREST" | "OBLIGATION";
-    socialBattery?: number | null;
     dissociationLevel?: number | null;
     tranquilityLevel?: number | null;
+    voidLevel?: number | null;
+    type?: string | null;
     createdAt: Date;
   };
   color: string;
+  chainType?: string;
 }
 
-export function EventCard({ event, color }: EventCardProps) {
+export function EventCard({ event, color, chainType }: EventCardProps) {
   const formattedDate = format(new Date(event.createdAt), "d 'de' MMM, HH:mm", { locale: es });
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(false);
@@ -54,23 +57,30 @@ export function EventCard({ event, color }: EventCardProps) {
     }
   };
 
+  const actualType = event.type || chainType;
+
   return (
     <div className="relative w-full flex flex-col items-center group/card animate-in fade-in zoom-in-95 duration-300">
-      <div className="bg-zinc-900/80 border border-zinc-800/60 p-5 rounded-2xl shadow-xl hover:border-zinc-700 transition-all duration-300 w-full max-w-[90%] backdrop-blur-sm relative">
+      <div 
+        className="bg-zinc-900/80 border p-5 rounded-2xl shadow-xl transition-all duration-300 w-full max-w-[90%] backdrop-blur-sm relative"
+        style={{
+          borderColor: actualType === "SKILL" ? color : "#27272a99" // zinc-800/60 fallback
+        }}
+      >
         
         {/* Top Metadata Row */}
         <div className="flex items-center justify-between mb-4 px-1">
           <div className="flex items-center space-x-3">
-             <div className="flex items-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest" title="Energía">
-               <Zap className={`w-3 h-3 mr-1 ${getEnergyColor(event.energyLevel)}`} />
-               {event.energyLevel === 'LOW' ? 'Baja' : event.energyLevel === 'HIGH' ? 'Alta' : 'Media'}
-             </div>
-             {event.motivation && (
-               <div className="flex items-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest" title="Motivación">
-                 <Heart className={`w-3 h-3 mr-1 ${event.motivation === 'GENUINE_INTEREST' ? 'text-pink-400' : 'text-zinc-500'}`} />
-                 {event.motivation === 'GENUINE_INTEREST' ? 'Genuino' : 'Obligación'}
-               </div>
-             )}
+              <div className="flex items-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest" title="Energía">
+                <Zap className={`w-3 h-3 mr-1 ${getEnergyColor(event.energyLevel)}`} />
+                {energyLevelMap[event.energyLevel]}
+              </div>
+              {event.motivation && (
+                <div className="flex items-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest" title="Motivación">
+                  <Heart className={`w-3 h-3 mr-1 ${event.motivation === 'GENUINE_INTEREST' ? 'text-pink-400' : 'text-zinc-500'}`} />
+                  {motivationTypeMap[event.motivation as keyof typeof motivationTypeMap]}
+                </div>
+              )}
           </div>
           
           <div className="flex space-x-2">
@@ -111,24 +121,30 @@ export function EventCard({ event, color }: EventCardProps) {
         )}
         
         {/* Metrics Row */}
-        {(event.socialBattery != null || event.dissociationLevel != null || event.tranquilityLevel != null) && (
+        {(event.socialBattery != null || event.dissociationLevel != null || event.tranquilityLevel != null || event.voidLevel != null) && (
           <div className="flex items-center justify-center space-x-4 mb-4 mt-2">
             {event.socialBattery != null && (
               <div className="flex flex-col items-center">
                 <span className="text-[8px] font-bold text-purple-400/80 uppercase">Social</span>
-                <span className="text-xs font-black text-purple-300">{event.socialBattery}/5</span>
+                <span className="text-xs font-black text-purple-300">{event.socialBattery}/10</span>
               </div>
             )}
             {event.dissociationLevel != null && (
               <div className="flex flex-col items-center">
                 <span className="text-[8px] font-bold text-emerald-400/80 uppercase">Disoc.</span>
-                <span className="text-xs font-black text-emerald-300">{event.dissociationLevel}/5</span>
+                <span className="text-xs font-black text-emerald-300">{event.dissociationLevel}/10</span>
               </div>
             )}
             {event.tranquilityLevel != null && (
               <div className="flex flex-col items-center">
                 <span className="text-[8px] font-bold text-blue-400/80 uppercase">Tranq.</span>
-                <span className="text-xs font-black text-blue-300">{event.tranquilityLevel}/5</span>
+                <span className="text-xs font-black text-blue-300">{event.tranquilityLevel}/10</span>
+              </div>
+            )}
+            {event.voidLevel != null && (
+              <div className="flex flex-col items-center">
+                <span className="text-[8px] font-bold text-zinc-400/80 uppercase">Vacío</span>
+                <span className="text-xs font-black text-zinc-300">{event.voidLevel}/10</span>
               </div>
             )}
           </div>

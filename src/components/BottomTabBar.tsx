@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Map, Compass, BookOpen, Settings, Search, History, Archive, LogOut } from "lucide-react";
+import { Calendar, Map, Compass, BookOpen, Settings, Search, History, Archive, LogOut, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -67,6 +67,13 @@ export default function BottomTabBar() {
               >
                 <Search className="mr-3 h-4 w-4 text-zinc-500" />
                 <span className="font-bold text-sm">Buscar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-zinc-100 focus:bg-zinc-900 focus:text-white cursor-pointer py-3 rounded-xl"
+                onClick={() => router.push("/templates")}
+              >
+                <ClipboardList className="mr-3 h-4 w-4 text-zinc-500" />
+                <span className="font-bold text-sm">Plantillas</span>
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-zinc-100 focus:bg-zinc-900 focus:text-white cursor-pointer py-3 rounded-xl"

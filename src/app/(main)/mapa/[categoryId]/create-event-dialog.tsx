@@ -22,7 +22,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { getAllCategoriesWithChainsAction, createChainEventAction } from "@/lib/mapaActions";
 import { toast } from "sonner";
-import { EnergyLevel, MotivationType } from "@prisma/client";
+import { EnergyLevel, MotivationType, ChainType } from "@prisma/client";
+import { SearchableSelect } from "@/components/searchable-select";
+import { energyLevelMap, motivationTypeMap, chainTypeMap } from "@/lib/translations";
 
 interface CreateEventDialogProps {
   preselectedChainId?: string;
@@ -34,9 +36,11 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedChainId, setSelectedChainId] = useState<string>(preselectedChainId || "");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
   const [motivation, setMotivation] = useState<MotivationType | "NONE">("NONE");
+  const [eventType, setEventType] = useState<ChainType>(ChainType.SKILL);
 
   useEffect(() => {
     if (open && !preselectedChainId && !categoriesLoaded) {
@@ -70,7 +74,8 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
         content,
         energyLevel,
         motivation === "NONE" ? undefined : (motivation as MotivationType),
-        undefined, undefined, undefined,
+        undefined, undefined, undefined, undefined,
+        eventType,
         link || undefined
       );
 
@@ -104,7 +109,7 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger nativeButton={false} render={(trigger as React.ReactElement) ?? defaultTrigger} />
 
-      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90dvh]">
+      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2.5rem] p-8 pb-32 shadow-2xl overflow-y-auto max-h-[85dvh]">
         <DialogHeader className="mb-6">
           <div className="w-16 h-16 bg-purple-600/10 rounded-2xl flex items-center justify-center mb-4 border border-purple-500/20 shadow-inner">
             <Plus className="w-8 h-8 text-purple-500" />
@@ -117,24 +122,36 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {!preselectedChainId && (
-            <div className="space-y-2">
-              <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Cadena Destino</Label>
-              <Select value={selectedChainId} onValueChange={(val) => setSelectedChainId(val || "")} required>
-                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-14 rounded-2xl px-5">
-                  <SelectValue placeholder="Selecciona una cadena..." />
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-h-[250px]">
-                  {allChains.map((chain: any) => (
-                    <SelectItem key={chain.id} value={chain.id}>
-                      <div className="flex flex-col items-start text-sm">
-                        <span className="font-bold">{chain.name}</span>
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-tighter">{chain.categoryName}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Categoría</Label>
+                <SearchableSelect 
+                  options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+                  value={selectedCategoryId}
+                  onSelect={(val) => {
+                    setSelectedCategoryId(val);
+                    setSelectedChainId("");
+                  }}
+                  placeholder="Buscar categoría..."
+                  triggerPlaceholder="Elegir categoría..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Cadena Destino</Label>
+                <SearchableSelect 
+                  options={(categories.find(c => c.id === selectedCategoryId)?.chains || []).map((chain: any) => ({
+                    value: chain.id,
+                    label: chain.name
+                  }))}
+                  value={selectedChainId}
+                  onSelect={setSelectedChainId}
+                  placeholder="Buscar cadena..."
+                  triggerPlaceholder={selectedCategoryId ? "Elegir cadena..." : "Selecciona categoría primero"}
+                  className={!selectedCategoryId ? "opacity-50 pointer-events-none" : ""}
+                />
+              </div>
+            </>
           )}
 
           <div className="space-y-2">
@@ -157,13 +174,28 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
                 <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
                   <Zap className={`w-4 h-4 mr-2 ${energyLevel === 'HIGH' ? 'text-red-400' : energyLevel === 'LOW' ? 'text-emerald-400' : 'text-amber-400'}`} />
                   <span className="font-bold text-sm">
-                    {energyLevel === 'LOW' ? 'Baja' : energyLevel === 'MEDIUM' ? 'Media' : 'Alta'}
+                    {energyLevelMap[energyLevel]}
                   </span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
-                  <SelectItem value={EnergyLevel.LOW}>Baja</SelectItem>
-                  <SelectItem value={EnergyLevel.MEDIUM}>Media</SelectItem>
-                  <SelectItem value={EnergyLevel.HIGH}>Alta</SelectItem>
+                  <SelectItem value={EnergyLevel.LOW}>{energyLevelMap.LOW}</SelectItem>
+                  <SelectItem value={EnergyLevel.MEDIUM}>{energyLevelMap.MEDIUM}</SelectItem>
+                  <SelectItem value={EnergyLevel.HIGH}>{energyLevelMap.HIGH}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Tipo</Label>
+              <Select value={eventType} onValueChange={(val) => setEventType(val as ChainType)}>
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
+                  <span className="font-bold text-sm">
+                    {chainTypeMap[eventType]}
+                  </span>
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
+                  <SelectItem value={ChainType.SKILL}>{chainTypeMap.SKILL}</SelectItem>
+                  <SelectItem value={ChainType.ROUTINE}>{chainTypeMap.ROUTINE}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -176,13 +208,13 @@ export function CreateEventDialog({ preselectedChainId, trigger }: CreateEventDi
                    motivation === MotivationType.OBLIGATION ? <Anchor className="w-4 h-4 mr-2 text-zinc-500" /> : 
                    <div className="w-4 h-4 mr-2 border border-zinc-700 rounded-full" />}
                   <span className="font-bold text-sm">
-                    {motivation === 'NONE' ? 'Ninguna' : motivation === MotivationType.GENUINE_INTEREST ? 'Genuina' : 'Deber'}
+                    {motivation === 'NONE' ? 'Ninguna' : motivationTypeMap[motivation as MotivationType]}
                   </span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
                   <SelectItem value="NONE">Ninguna</SelectItem>
-                  <SelectItem value={MotivationType.GENUINE_INTEREST}>Genuina</SelectItem>
-                  <SelectItem value={MotivationType.OBLIGATION}>Por Deber</SelectItem>
+                  <SelectItem value={MotivationType.GENUINE_INTEREST}>{motivationTypeMap.GENUINE_INTEREST}</SelectItem>
+                  <SelectItem value={MotivationType.OBLIGATION}>{motivationTypeMap.OBLIGATION}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

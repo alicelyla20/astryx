@@ -42,7 +42,7 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
   return (
     <div className="flex flex-col h-full w-full max-w-md mx-auto relative px-2">
       
-      <header className="mb-8 pl-3 flex items-center justify-between">
+      <header className="mb-3 pl-3 flex items-center justify-between">
         <h2 
           className="text-lg font-black text-zinc-100 tracking-[0.1em] uppercase border-b-2 pb-2 inline-block shadow-sm"
           style={{ borderColor: color }}
@@ -69,8 +69,19 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
 
       <div 
         ref={containerRef}
-        className="flex-1 overflow-y-auto space-y-12 pb-40 scrollbar-hide relative flex flex-col items-center pt-8"
+        className="flex-1 overflow-y-auto touch-pan-y overscroll-behavior-y-contain space-y-8 pb-32 relative flex flex-col items-center pt-4"
       >
+        <div className="w-full flex justify-center pb-2">
+          <CreateEventDialog 
+            preselectedChainId={chain.id} 
+            trigger={
+              <div className="flex items-center space-x-2 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/50 hover:border-zinc-700 px-5 py-3 rounded-2xl text-zinc-500 hover:text-zinc-300 font-bold transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer w-full max-w-xs justify-center mx-auto">
+                <Plus className="w-3 h-3 text-purple-500" />
+                <span>Nuevo Eslabón</span>
+              </div>
+            }
+          />
+        </div>
         
         {/* Pending Tasks */}
         {chain.tasks && chain.tasks.length > 0 && (
@@ -84,7 +95,7 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
         {/* The Centered Chain Line (Seamless Eslabones) */}
         {(chain.events.length > 0 || (chain.tasks && chain.tasks.length > 0)) && (
           <div 
-            className="absolute left-1/2 -translate-x-1/2 top-4 bottom-0 w-3 -z-0 opacity-40 pointer-events-none"
+            className="absolute left-1/2 -translate-x-1/2 top-24 bottom-0 w-3 -z-0 opacity-40 pointer-events-none"
             style={{ 
               backgroundImage: `url("${chainSvg}")`,
               backgroundRepeat: "repeat-y",
@@ -100,22 +111,12 @@ export function ChainColumn({ chain, categoryId, color, targetEventId }: ChainCo
               className="w-full flex justify-center"
               ref={el => { eventRefs.current[event.id] = el; }}
             >
-              <EventCard event={event} color={color} />
+              <EventCard event={event} color={color} chainType={chain.type} />
             </div>
           ))
         )}
 
-        <div className="w-full flex justify-center pt-4 pb-10">
-          <CreateEventDialog 
-            preselectedChainId={chain.id} 
-            trigger={
-              <div className="flex items-center space-x-2 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/50 hover:border-zinc-700 px-5 py-3 rounded-2xl text-zinc-500 hover:text-zinc-300 font-bold transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
-                <Plus className="w-3 h-3" />
-                <span>Nuevo Eslabón</span>
-              </div>
-            }
-          />
-        </div>
+
 
         {chain.events.length === 0 && (!chain.tasks || chain.tasks.length === 0) && (
           <div className="flex flex-col items-center justify-center py-20 px-6 bg-zinc-900/10 border border-zinc-800/30 rounded-3xl border-dashed w-full max-w-sm mx-auto">

@@ -1,6 +1,8 @@
 import BottomTabBar from "@/components/BottomTabBar";
 import OfflineSync from "@/components/OfflineSync";
 import { Sidebar } from "@/components/Sidebar";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import { Suspense } from "react";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,9 +12,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Permanent Sidebar on Desktop */}
       <Sidebar />
       
-      <main className="flex-1 relative pb-24 md:pb-8 pt-4 px-4 w-full h-full animate-in fade-in duration-500 overflow-y-auto max-h-screen">
+      <main className="flex-1 relative pb-24 md:pb-8 pt-4 px-4 w-full animate-in fade-in duration-500 overflow-x-hidden min-w-0 flex flex-col h-dvh">
         {children}
       </main>
+
+      <Suspense fallback={null}>
+        <FloatingActionButton />
+      </Suspense>
       
       {/* Bottom Bar ONLY on Mobile */}
       <div className="md:hidden">

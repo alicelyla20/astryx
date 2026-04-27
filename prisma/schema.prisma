@@ -37,8 +37,9 @@ model Chain {
   createdAt   DateTime @default(now())
   
   // A Chain has many Events and Tasks
-  events      ChainEvent[]
-  tasks       Task[]
+  events          ChainEvent[]
+  tasks           Task[]
+  templateItems   TemplateItem[]
 
   @@unique([categoryId, name]) // A chain name must be unique within its category
 }
@@ -54,10 +55,12 @@ model ChainEvent {
   
   energyLevel EnergyLevel @default(MEDIUM)
   motivation  MotivationType?
+  type        ChainType?  @default(SKILL) // Habilidad o Rutina
   
-  socialBattery     Int?     // 1 to 5, MOVED FROM DailyLog
-  dissociationLevel Int?     // 1 to 5, MOVED FROM DailyLog
-  tranquilityLevel  Int?     // 1 to 5, MOVED FROM DailyLog
+  socialBattery     Int?     // 1 to 10, MOVED FROM DailyLog
+  dissociationLevel Int?     // 1 to 10, MOVED FROM DailyLog
+  tranquilityLevel  Int?     // 1 to 10, MOVED FROM DailyLog
+  voidLevel         Int?     // 1 to 10
   isArchived        Boolean  @default(false) // Added for event-level archive
   createdAt         DateTime @default(now()) // Acts as the event date
 }
@@ -78,7 +81,7 @@ model Task {
   chain         Chain           @relation(fields: [chainId], references: [id], onDelete: Cascade)
   
   dailyLogId    String
-  dailyLog      DailyLog        @relation(fields: [dailyLogId], references: [id])
+  dailyLog      DailyLog        @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
   
   status        TaskStatus      @default(PLANNED)
   motivation    MotivationType? // Filled via pop-up on completion
@@ -119,4 +122,29 @@ model JournalEntry {
 enum ChainType {
   SKILL
   ROUTINE
+}
+
+// NEW MODEL for the template list
+model MissionTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  items       TemplateItem[]
+}
+
+// NEW MODEL for each task in a template
+model TemplateItem {
+  id              String      @id @default(cuid())
+  title           String
+  type            TaskType    // ROUTINE or TECHNICAL
+  energyLevel     EnergyLevel @default(MEDIUM)
+  
+  chainId         String
+  chain           Chain       @relation(fields: [chainId], references: [id], onDelete: Cascade)
+  
+  templateId      String
+  template        MissionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }

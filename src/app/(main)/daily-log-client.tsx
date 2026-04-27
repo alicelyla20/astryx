@@ -22,6 +22,7 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
   const [socialBattery, setSocialBattery] = useState(initialLog.socialBattery || 3);
   const [dissociationLevel, setDissociationLevel] = useState(initialLog.dissociationLevel || 1);
   const [tranquilityLevel, setTranquilityLevel] = useState(initialLog.tranquilityLevel || 3);
+  const [voidLevel, setVoidLevel] = useState((initialLog as any).voidLevel || 1);
   const [triggersContent, setTriggersContent] = useState(initialLog.triggersContent || "");
   const [isMetricsOpen, setIsMetricsOpen] = useState(false);
 
@@ -61,6 +62,12 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
     debouncedUpdate({ triggersContent: e.target.value });
   };
 
+  const handleVoidChange = (val: number | readonly number[]) => {
+    const newValue = Array.isArray(val) ? val[0] : val;
+    setVoidLevel(newValue);
+    debouncedUpdate({ voidLevel: newValue } as any);
+  };
+
   return (
     <div className="space-y-6 mt-6">
       {/* Metrics Section (Collapsible) */}
@@ -88,7 +95,7 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
               <span className="text-purple-400 font-black text-xl">{socialBattery}</span>
             </div>
             <Slider 
-              min={1} max={5} step={1} 
+              min={1} max={10} step={1} 
               value={[socialBattery]} 
               onValueChange={handleSocialChange}
             />
@@ -100,7 +107,7 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
               <span className="text-pink-400 font-black text-xl">{dissociationLevel}</span>
             </div>
             <Slider 
-              min={1} max={5} step={1} 
+              min={1} max={10} step={1} 
               value={[dissociationLevel]} 
               onValueChange={handleDissociationChange}
             />
@@ -112,9 +119,21 @@ export function DailyLogClient({ initialLog, dateStr }: DailyLogClientProps) {
               <span className="text-blue-400 font-black text-xl">{tranquilityLevel}</span>
             </div>
             <Slider 
-              min={1} max={5} step={1} 
+              min={1} max={10} step={1} 
               value={[tranquilityLevel]} 
               onValueChange={handleTranquilityChange}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label className="text-zinc-400 font-bold text-sm uppercase tracking-widest">Vacío</Label>
+              <span className="text-zinc-300 font-black text-xl">{voidLevel}</span>
+            </div>
+            <Slider 
+              min={1} max={10} step={1} 
+              value={[voidLevel]} 
+              onValueChange={handleVoidChange}
             />
           </div>
         </div>
