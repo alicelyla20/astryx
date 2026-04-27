@@ -68,9 +68,16 @@ export async function exportUserDataAction() {
     }
   });
 
+  const missionTemplates = await (prisma as any).missionTemplate.findMany({
+    include: {
+      items: true
+    }
+  });
+
   return {
     exportDate: new Date().toISOString(),
     categories,
-    dailyLogs
+    dailyLogs,
+    missionTemplates
   };
 }

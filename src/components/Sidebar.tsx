@@ -10,7 +10,8 @@ import {
   History, 
   Archive, 
   LogOut,
-  User
+  User,
+  ClipboardList
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -31,6 +32,7 @@ export function Sidebar() {
 
   const secondaryLinks = [
     { href: "/journal", label: "Diario de Abordo", icon: BookOpen },
+    { href: "/templates", label: "Plantillas", icon: ClipboardList },
     { href: "/archivo", label: "Archivo", icon: Archive },
   ];
 

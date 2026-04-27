@@ -71,7 +71,7 @@ export function CreateChainDialog({ categoryId }: { categoryId: string }) {
           }
         />
 
-        <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[400px] w-full rounded-3xl p-8 shadow-2xl">
+        <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[400px] w-full rounded-3xl p-8 shadow-2xl max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black tracking-tight flex items-center">
               <Sparkles className="w-5 h-5 mr-2 text-purple-500" />

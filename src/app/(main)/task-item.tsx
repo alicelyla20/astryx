@@ -10,9 +10,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { completeTaskAction } from "@/lib/taskActions";
-import { Heart, Anchor } from "lucide-react";
+import { completeTaskAction, uncompleteTaskAction, deleteTaskAction } from "@/lib/taskActions";
+import { Heart, Anchor, XCircle } from "lucide-react";
 import { TaskStatus, MotivationType } from "@prisma/client";
+import { motivationTypeMap } from "@/lib/translations";
 
 interface TaskItemProps {
   task: {
@@ -37,9 +38,18 @@ export function TaskItem({ task }: TaskItemProps) {
 
   const isCompleted = task.status === TaskStatus.COMPLETED;
 
-  const handleCheckboxChange = (checked: boolean) => {
+  const handleCheckboxChange = async (checked: boolean) => {
     if (checked && !isCompleted) {
       setShowMotivationModal(true);
+    } else if (!checked && isCompleted) {
+      setIsUpdating(true);
+      try {
+        await uncompleteTaskAction(task.id);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsUpdating(false);
+      }
     }
   };
 
@@ -55,22 +65,49 @@ export function TaskItem({ task }: TaskItemProps) {
     }
   };
 
+  const handleCancelTask = async () => {
+    setIsUpdating(true);
+    try {
+      await deleteTaskAction(task.id);
+      setShowMotivationModal(false);
+    } catch (error) {
+      console.error("Failed to cancel task:", error);
+      setIsUpdating(false); // only rest state on fail because on success it unmounts!
+    }
+  };
+
   return (
     <>
-      <div className="flex items-center space-x-3 p-5 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl transition-all hover:bg-zinc-800/20 group">
+      <div 
+        className={`flex items-center space-x-3 p-5 border rounded-3xl transition-all group ${
+          isCompleted ? "border-zinc-800/80" : "bg-zinc-900/40 border-zinc-800/80 hover:bg-zinc-800/20"
+        }`}
+        style={{
+          backgroundColor: isCompleted && task.chain ? `${task.chain.category.colorHex}20` : undefined,
+          borderColor: isCompleted && task.chain ? `${task.chain.category.colorHex}50` : undefined,
+        }}
+      >
         <Checkbox
           id={`task-${task.id}`}
           checked={isCompleted}
           onCheckedChange={handleCheckboxChange}
-          disabled={isCompleted || isUpdating}
-          className="w-7 h-7 border-zinc-700 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 transition-colors"
+          disabled={isUpdating}
+          className={`w-7 h-7 transition-colors ${
+            isCompleted && task.chain 
+              ? "border-transparent" 
+              : "border-zinc-700 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+          }`}
+          style={{
+            backgroundColor: isCompleted && task.chain ? task.chain.category.colorHex : undefined,
+            color: isCompleted ? "#fff" : undefined,
+          }}
         />
         
         <div className="flex-1 min-w-0 pr-2">
           <label
             htmlFor={`task-${task.id}`}
             className={`text-base md:text-xl font-bold tracking-tight cursor-pointer select-none transition-all block break-words ${
-              isCompleted ? "text-zinc-500 line-through decoration-zinc-600 font-medium" : "text-zinc-100"
+              isCompleted ? "text-zinc-300 line-through decoration-zinc-500 font-medium" : "text-zinc-100"
             }`}
           >
             {task.title}
@@ -78,8 +115,8 @@ export function TaskItem({ task }: TaskItemProps) {
           
           {task.chain && (
             <div className="flex items-center space-x-2 mt-1">
-              <span className="text-[9px] md:text-xs font-black uppercase tracking-widest text-zinc-500">{task.chain.name}</span>
-              <span className="w-1 h-1 rounded-full bg-zinc-700" />
+              <span className={`text-[9px] md:text-xs font-black uppercase tracking-widest ${isCompleted ? "text-zinc-400" : "text-zinc-500"}`}>{task.chain.name}</span>
+              <span className={`w-1 h-1 rounded-full ${isCompleted ? "bg-zinc-500" : "bg-zinc-700"}`} />
               <span 
                 className="text-[9px] md:text-xs font-black uppercase tracking-widest"
                 style={{ color: task.chain.category.colorHex }}
@@ -92,9 +129,9 @@ export function TaskItem({ task }: TaskItemProps) {
 
         <div className="flex items-center space-x-2">
           {isCompleted && task.motivation && (
-             <div className="text-[9px] font-black uppercase tracking-widest px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-500">
-               {task.motivation === MotivationType.GENUINE_INTEREST ? "Genuino" : "Obligatorio"}
-             </div>
+              <div className="text-[9px] font-black uppercase tracking-widest px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-500">
+                {motivationTypeMap[task.motivation as keyof typeof motivationTypeMap]}
+              </div>
           )}
         </div>
       </div>
@@ -115,7 +152,7 @@ export function TaskItem({ task }: TaskItemProps) {
               className="w-full bg-zinc-900 hover:bg-purple-600/10 border border-zinc-800 hover:border-purple-600/50 py-5 rounded-2xl text-lg font-black text-zinc-100 transition-all active:scale-[0.98] flex items-center justify-center space-x-3 group/btn"
             >
               <Heart className="w-6 h-6 group-hover/btn:scale-125 transition-transform text-purple-400" />
-              <span>Por Gusto / Interés</span>
+              <span>{motivationTypeMap.GENUINE_INTEREST}</span>
             </button>
             
             <button
@@ -124,7 +161,18 @@ export function TaskItem({ task }: TaskItemProps) {
               className="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 py-5 rounded-2xl text-lg font-bold text-zinc-500 transition-all active:scale-[0.98] flex items-center justify-center space-x-3"
             >
               <Anchor className="w-6 h-6 text-zinc-500" />
-              <span>Por Obligación</span>
+              <span>{motivationTypeMap.OBLIGATION}</span>
+            </button>
+            
+            <div className="h-px bg-zinc-900 w-full my-2 rounded-full" />
+            
+            <button
+              onClick={handleCancelTask}
+              disabled={isUpdating}
+              className="w-full bg-zinc-950 hover:bg-red-900/10 border border-zinc-900 hover:border-red-900/50 py-4 rounded-2xl text-base font-bold text-red-500/50 hover:text-red-400 transition-all active:scale-[0.98] flex items-center justify-center space-x-3 group/cancel"
+            >
+              <XCircle className="w-5 h-5 group-hover/cancel:scale-110 transition-transform" />
+              <span>Cancelar Misión</span>
             </button>
           </div>
         </DialogContent>

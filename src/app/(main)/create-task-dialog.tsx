@@ -23,6 +23,8 @@ import { getAllCategoriesWithChainsAction } from "@/lib/mapaActions";
 import { createTaskAction } from "@/lib/dailyLogActions";
 import { toast } from "sonner";
 import { TaskType, EnergyLevel } from "@prisma/client";
+import { SearchableSelect } from "@/components/searchable-select";
+import { energyLevelMap, taskTypeMap } from "@/lib/translations";
 
 export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselectedCategoryId?: string, trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -82,16 +84,10 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
     ? allChains.filter(c => c.categoryId === preselectedCategoryId)
     : allChains;
 
-  const typeMap: Record<string, string> = {
-    [TaskType.TECHNICAL]: "Técnica",
-    [TaskType.ROUTINE]: "Rutina"
-  };
-
-  const energyMap: Record<string, string> = {
-    [EnergyLevel.LOW]: "Baja",
-    [EnergyLevel.MEDIUM]: "Media",
-    [EnergyLevel.HIGH]: "Alta"
-  };
+  const searchableChainOptions = displayChains.map((chain: any) => ({
+    value: chain.id,
+    label: preselectedCategoryId ? chain.name : `${chain.name} (${chain.categoryName})`
+  }));
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -99,14 +95,14 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
         <DialogTrigger nativeButton={false} render={trigger as React.ReactElement} />
       ) : (
         <DialogTrigger render={
-          <button className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm">
+          <div className="cursor-pointer w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm">
             <Plus className="w-4 h-4 text-purple-500" />
             <span>Planificar Nueva Misión</span>
-          </button>
+          </div>
         } />
       )}
       
-      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2rem] p-8 shadow-2xl overflow-y-auto max-h-[90dvh]">
+      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-w-[calc(100%-2rem)] md:max-w-[450px] w-full rounded-[2rem] p-8 pb-32 shadow-2xl overflow-y-auto max-h-[85dvh]">
         <DialogHeader className="mb-6">
           <DialogTitle className="text-2xl font-black tracking-tight flex items-center">
             <ListTodo className="mr-3 text-purple-500" />
@@ -133,11 +129,11 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
               <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Tipo</Label>
               <Select name="type" value={taskType} onValueChange={(val) => setTaskType(val || TaskType.TECHNICAL)}>
                 <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
-                  <span className="font-bold">{typeMap[taskType]}</span>
+                  <span className="font-bold">{taskTypeMap[taskType as keyof typeof taskTypeMap]}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
-                  <SelectItem value={TaskType.TECHNICAL}>Técnica</SelectItem>
-                  <SelectItem value={TaskType.ROUTINE}>Rutina</SelectItem>
+                  <SelectItem value={TaskType.TECHNICAL}>{taskTypeMap.TECHNICAL}</SelectItem>
+                  <SelectItem value={TaskType.ROUTINE}>{taskTypeMap.ROUTINE}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -146,12 +142,12 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
               <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Energía</Label>
               <Select name="energyLevel" value={energyLevel} onValueChange={(val) => setEnergyLevel(val || EnergyLevel.MEDIUM)}>
                 <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
-                  <span className="font-bold">{energyMap[energyLevel]}</span>
+                  <span className="font-bold">{energyLevelMap[energyLevel as keyof typeof energyLevelMap]}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
-                  <SelectItem value={EnergyLevel.LOW}>Baja</SelectItem>
-                  <SelectItem value={EnergyLevel.MEDIUM}>Media</SelectItem>
-                  <SelectItem value={EnergyLevel.HIGH}>Alta</SelectItem>
+                  <SelectItem value={EnergyLevel.LOW}>{energyLevelMap.LOW}</SelectItem>
+                  <SelectItem value={EnergyLevel.MEDIUM}>{energyLevelMap.MEDIUM}</SelectItem>
+                  <SelectItem value={EnergyLevel.HIGH}>{energyLevelMap.HIGH}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -159,27 +155,14 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
 
           <div className="space-y-2">
             <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Cadena Origen</Label>
-            <Select name="chainId" value={selectedChainId} onValueChange={(val) => setSelectedChainId(val || "")} required>
-              <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-14 rounded-2xl px-5">
-                <span className={!selectedChainId ? "text-zinc-400" : "font-bold"}>
-                  {selectedChainId 
-                    ? displayChains.find(c => c.id === selectedChainId)?.name || "Seleccionar..." 
-                    : "Selecciona una cadena..."}
-                </span>
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50 max-h-[300px]">
-                {displayChains.map((chain: any) => (
-                  <SelectItem key={chain.id} value={chain.id}>
-                    <div className="flex flex-col items-start">
-                      <span className="font-bold">{chain.name}</span>
-                      {!preselectedCategoryId && (
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-tighter">{chain.categoryName}</span>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect 
+              name="chainId"
+              options={searchableChainOptions}
+              value={selectedChainId}
+              onSelect={setSelectedChainId}
+              placeholder="Buscar por nombre de cadena..."
+              triggerPlaceholder="Seleccionar cadena de origen"
+            />
           </div>
 
           <button

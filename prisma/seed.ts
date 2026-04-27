@@ -11,10 +11,9 @@ async function main() {
 
   console.log("Cleaning database...");
   
-  // Order matters due to foreign keys if not using CASCADE (though many have it)
-  // Using $executeRawUnsafe to truncate all for a clean slate if needed, 
-  // or just delete in order.
-  
+  // Order matters due to foreign keys
+  await prisma.templateItem.deleteMany({});
+  await prisma.missionTemplate.deleteMany({});
   await prisma.task.deleteMany({});
   await prisma.chainEvent.deleteMany({});
   await prisma.chain.deleteMany({});
@@ -25,11 +24,11 @@ async function main() {
 
   console.log("Database cleaned.");
 
-  const hashedPassword = await bcrypt.hash("admin", 12);
+  const hashedPassword = await bcrypt.hash("purpleblack.666", 12);
 
   const user = await prisma.user.create({
     data: {
-      username: "admin",
+      username: "alice",
       password: hashedPassword,
     },
   });

@@ -33,12 +33,12 @@ export function EditChainDialog({ chain, categoryId, open, onOpenChange }: any) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px]">
+      <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-w-[90vw] md:max-w-[400px] max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Cadena</DialogTitle>
           <DialogDescription>Ajusta el nombre, tipo o nivel de energía de la cadena.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 pb-20">
           <div>
             <label className="text-[10px] uppercase text-zinc-500 font-bold mb-1 block tracking-widest pl-1">Nombre</label>
             <input 

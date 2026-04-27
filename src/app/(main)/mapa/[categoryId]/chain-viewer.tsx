@@ -32,11 +32,9 @@ export function ChainViewer({ category }: ChainViewerProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
-    dragFree: true,
+    dragFree: false, // snap tightly
+    slidesToScroll: "auto", // Automatically page by available slots
     startIndex: Math.min(initialIndex, Math.max(0, category.chains.length - 1)),
-    breakpoints: {
-      '(min-width: 1024px)': { active: false }
-    }
   });
 
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
@@ -81,10 +79,10 @@ export function ChainViewer({ category }: ChainViewerProps) {
   }, [emblaApi, targetIndex]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
 
-      {/* Mobile Dynamic Header (Hidden on LG) */}
-      <div className="lg:hidden flex items-center justify-between px-4 mb-8">
+      {/* Dynamic Header & Controls (Visible everywhere) */}
+      <div className="flex items-center justify-between px-4 mb-3">
         <button
           onClick={scrollPrev}
           className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 disabled:opacity-30 transition-all font-bold"
@@ -94,9 +92,13 @@ export function ChainViewer({ category }: ChainViewerProps) {
         </button>
 
         <div className="text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">Cadena Activa</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">
+            <span className="md:hidden">Cadena Activa</span>
+            <span className="hidden md:inline">Cadenas Activas</span>
+          </p>
           <h1 className="text-2xl font-black text-white tracking-tighter">
-            {category.chains[selectedIndex]?.name || "Explorar"}
+            <span className="md:hidden">{category.chains[selectedIndex]?.name || "Explorar"}</span>
+            <span className="hidden md:inline">Vista de Mapa</span>
           </h1>
         </div>
 
@@ -109,16 +111,16 @@ export function ChainViewer({ category }: ChainViewerProps) {
         </button>
       </div>
 
-      {/* Main Container: Carousel on mobile, Kanban on desktop */}
+      {/* Main Container: Carousel on all devices */}
       <div
-        className="overflow-x-auto lg:overflow-x-auto flex-1 px-4 lg:px-8 pb-10 custom-scrollbar"
+        className="overflow-hidden flex-1 min-h-0 px-4 md:px-8 pb-2"
         ref={emblaRef}
       >
-        <div className="flex h-full lg:space-x-8">
+        <div className="flex h-full md:space-x-8">
           {category.chains.map((chain) => (
             <div
               key={chain.id}
-              className="flex-[0_0_100%] lg:flex-[0_0_350px] min-w-0 h-full scroll-mt-20"
+              className="flex-[0_0_100%] lg:flex-[0_0_calc(50%-1rem)] xl:flex-[0_0_calc(33.3333%-1.3333rem)] min-h-0 h-full scroll-mt-20"
             >
               <ChainColumn
                 chain={chain}
@@ -131,8 +133,8 @@ export function ChainViewer({ category }: ChainViewerProps) {
         </div>
       </div>
 
-      {/* Mobile Dots Indicator (Hidden on LG) */}
-      <div className="lg:hidden flex justify-center space-x-2 mt-6 pb-2">
+      {/* Dots Indicator */}
+      <div className="flex justify-center space-x-2 mt-2 pb-0">
         {category.chains.map((_, i) => (
           <div
             key={i}

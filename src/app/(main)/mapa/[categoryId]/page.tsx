@@ -18,10 +18,10 @@ export default async function ChainPage({ params }: ChainPageProps) {
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-right-4 duration-500 flex flex-col h-screen overflow-hidden -mt-4 -mx-4 pb-20">
+    <div className="animate-in fade-in slide-in-from-right-4 duration-500 flex flex-col h-[calc(100dvh-5rem)] md:h-[calc(100vh-2rem)] overflow-hidden -mt-4 -mx-4">
       
       {/* Top Header */}
-      <header className="p-6 flex items-center justify-between border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-md">
+      <header className="p-4 md:py-3 md:px-6 flex items-center justify-between border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-md">
         <div className="flex items-center space-x-4">
           <Link 
             href="/mapa"
@@ -39,7 +39,7 @@ export default async function ChainPage({ params }: ChainPageProps) {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 pt-8">
+      <div className="flex-1 flex flex-col min-h-0 pt-3 pb-1">
         {(category as any).chains.length > 0 ? (
           <ChainViewer category={category as any} />
         ) : (

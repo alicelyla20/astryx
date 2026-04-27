@@ -11,13 +11,16 @@ import { es } from "date-fns/locale";
 import { Zap, Plus, Link as LinkIcon } from "lucide-react";
 import { CreateTaskDialog } from "./create-task-dialog";
 import { CreateEventDialog } from "./mapa/[categoryId]/create-event-dialog";
+import { getTemplatesAction } from "@/lib/templateActions";
+import { ImportTemplateDialog } from "./import-template-dialog";
 
 export default async function HoyPage() {
-  const [dailyLog, journalLog, latestEvents, categories] = await Promise.all([
+  const [dailyLog, journalLog, latestEvents, categories, templates] = await Promise.all([
     getTodayLogAction(),
     getTodayJournalAction(),
     getLatestEventsPerChainAction(),
-    getCategoriesAction()
+    getCategoriesAction(),
+    getTemplatesAction()
   ]);
 
   const todayLabel = formatDateArg(getNowArg(), "EEEE, d 'de' MMMM");
@@ -30,7 +33,7 @@ export default async function HoyPage() {
           <p className="text-lg md:text-xl text-zinc-400 capitalize font-medium tracking-wide">{todayLabel}</p>
         </div>
         <div className="flex flex-col items-center justify-center opacity-80 pt-1">
-          <Image src="/rabbit.png" alt="Astryx Logo" width={36} height={36} className="object-contain mix-blend-screen opacity-90 md:w-16 md:h-16 drop-shadow-[0_0_10px_rgba(147,51,234,0.3)]" />
+          <Image src="/rabbit.png" alt="Astryx Logo" width={36} height={36} className="object-contain mix-blend-screen opacity-90 md:w-16 md:h-16 drop-shadow-[0_0_10px_rgba(147,51,234,0.3)]" priority />
           <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mt-1">Astryx</span>
         </div>
       </header>
@@ -54,6 +57,17 @@ export default async function HoyPage() {
                 <LinkIcon className="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
               </div>
               <span className="md:text-xl">Añadir Eslabón</span>
+            </div>
+          }
+        />
+        <ImportTemplateDialog 
+          templates={templates}
+          trigger={
+            <div className="flex-none flex items-center space-x-3 bg-purple-600/10 border border-purple-500/20 hover:bg-purple-600/20 hover:border-purple-500/50 px-6 py-4 md:px-8 md:py-6 rounded-[1.5rem] md:rounded-[2rem] text-purple-400 font-bold transition-all active:scale-95 shadow-xl group whitespace-nowrap cursor-pointer">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                <Plus className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+              </div>
+              <span className="md:text-xl">Cargar Plantilla de Misiones</span>
             </div>
           }
         />
@@ -136,19 +150,17 @@ export default async function HoyPage() {
                   </div>
                 </div>
                 <div className="grid gap-4">
-                  {categoryTasks.length > 0 ? ( 
-                    categoryTasks.map((task: any) => ( <TaskItem key={task.id} task={task} /> )) 
-                  ) : (
-                    <p className="text-zinc-600 text-base italic px-1">No hay misiones para hoy.</p>
-                  )}
+                  {categoryTasks.map((task: any) => ( 
+                    <TaskItem key={task.id} task={task} /> 
+                  ))}
                   <div className="pt-2">
                     <CreateTaskDialog 
                       preselectedCategoryId={category.id} 
                       trigger={
-                        <button className="w-full flex items-center justify-center space-x-2 py-4 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-zinc-300 font-black text-xs uppercase tracking-[0.2em] transition-all">
+                        <div className="cursor-pointer w-full flex items-center justify-center space-x-2 py-4 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-zinc-300 font-black text-xs uppercase tracking-[0.2em] transition-all">
                           <Plus className="w-4 h-4" />
                           <span>Planificar en {category.name}</span>
-                        </button>
+                        </div>
                       }
                     />
                   </div>
