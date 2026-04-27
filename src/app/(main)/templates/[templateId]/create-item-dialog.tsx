@@ -32,14 +32,14 @@ export function CreateItemDialog({ templateId, categories }: Props) {
     }
 
     startTransition(async () => {
-      try {
-        await createTemplateItemAction(templateId, title, type, energyLevel, chainId);
+      const result = await createTemplateItemAction(templateId, title, type, energyLevel, chainId);
+      if (result.success) {
         toast.success("Misión añadida a la plantilla.");
         setOpen(false);
         setTitle("");
         setChainId("");
-      } catch (err: any) {
-        toast.error(err.message || "Error al añadir la misión.");
+      } else {
+        toast.error(result.error);
       }
     });
   };
