@@ -32,11 +32,16 @@ export async function getTemplateByIdAction(id: string) {
 }
 
 export async function createTemplateAction(name: string, description?: string) {
-  const tpl = await (prisma as any).missionTemplate.create({
-    data: { name, description }
-  });
-  revalidatePath("/templates");
-  return tpl;
+  try {
+    const tpl = await (prisma as any).missionTemplate.create({
+      data: { name, description }
+    });
+    revalidatePath("/templates");
+    return tpl;
+  } catch (error: any) {
+    console.error("CRITICAL ERROR: Failed to create MissionTemplate.", error);
+    throw new Error(`Database Error: ${error?.message || "Unknown error"}`);
+  }
 }
 
 export async function updateTemplateAction(id: string, name: string, description?: string) {
@@ -61,16 +66,21 @@ export async function createTemplateItemAction(
   energyLevel: EnergyLevel, 
   chainId: string
 ) {
-  await (prisma as any).templateItem.create({
-    data: {
-      title,
-      type,
-      energyLevel,
-      templateId,
-      chainId
-    }
-  });
-  revalidatePath(`/templates/${templateId}`);
+  try {
+    await (prisma as any).templateItem.create({
+      data: {
+        title,
+        type,
+        energyLevel,
+        templateId,
+        chainId
+      }
+    });
+    revalidatePath(`/templates/${templateId}`);
+  } catch (error: any) {
+    console.error("CRITICAL ERROR: Failed to create TemplateItem.", error);
+    throw new Error(`Database Error: ${error?.message || "Unknown error"}`);
+  }
 }
 
 export async function deleteTemplateItemAction(itemId: string, templateId: string) {

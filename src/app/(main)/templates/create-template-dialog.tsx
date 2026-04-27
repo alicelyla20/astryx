@@ -23,8 +23,8 @@ export function CreateTemplateDialog() {
         setOpen(false);
         setName("");
         setDescription("");
-      } catch (err) {
-        toast.error("Error al crear la plantilla.");
+      } catch (err: any) {
+        toast.error(err.message || "Error al crear la plantilla.");
       }
     });
   };
