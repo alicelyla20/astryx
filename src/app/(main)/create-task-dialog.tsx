@@ -31,13 +31,13 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [taskType, setTaskType] = useState<string>(TaskType.TECHNICAL);
+  const [taskType, setTaskType] = useState<string>(TaskType.ROUTINE);
   const [energyLevel, setEnergyLevel] = useState<string>(EnergyLevel.MEDIUM);
   const [selectedChainId, setSelectedChainId] = useState<string>("");
 
   useEffect(() => {
     if (!open) {
-      setTaskType(TaskType.TECHNICAL);
+      setTaskType(TaskType.ROUTINE);
       setEnergyLevel(EnergyLevel.MEDIUM);
       setSelectedChainId("");
     }

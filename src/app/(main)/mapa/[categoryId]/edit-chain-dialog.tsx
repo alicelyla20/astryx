@@ -15,7 +15,7 @@ import { EnergyLevel } from "@prisma/client";
 
 export function EditChainDialog({ chain, categoryId, open, onOpenChange }: any) {
   const [name, setName] = useState(chain.name);
-  const [type, setType] = useState(chain.type || "SKILL");
+  const [type, setType] = useState(chain.type || "ROUTINE");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(chain.energyLevel || EnergyLevel.MEDIUM);
   const [isPending, startTransition] = useTransition();
 

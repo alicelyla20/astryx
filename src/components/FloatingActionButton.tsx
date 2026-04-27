@@ -36,7 +36,7 @@ export default function FloatingActionButton() {
   const [content, setContent] = useState("");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
   const [motivation, setMotivation] = useState<MotivationType | "NONE">("NONE");
-  const [type, setType] = useState<ChainType>(ChainType.SKILL);
+  const [type, setType] = useState<ChainType>(ChainType.ROUTINE);
 
   useEffect(() => {
     if (open) {
@@ -48,7 +48,7 @@ export default function FloatingActionButton() {
       setContent("");
       setEnergyLevel(EnergyLevel.MEDIUM);
       setMotivation("NONE");
-      setType(ChainType.SKILL);
+      setType(ChainType.ROUTINE);
     }
   }, [open]);
 

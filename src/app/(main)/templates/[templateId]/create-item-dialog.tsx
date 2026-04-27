@@ -20,7 +20,7 @@ export function CreateItemDialog({ templateId, categories }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<TaskType>(TaskType.TECHNICAL);
+  const [type, setType] = useState<TaskType>(TaskType.ROUTINE);
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
   const [chainId, setChainId] = useState("");
 
