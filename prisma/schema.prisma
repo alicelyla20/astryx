@@ -28,7 +28,7 @@ model Category {
 model Chain {
   id          String   @id @default(cuid())
   name        String
-  type        ChainType @default(SKILL)
+  type        ChainType @default(ROUTINE)
   energyLevel EnergyLevel @default(MEDIUM)
   
   categoryId  String
@@ -55,7 +55,7 @@ model ChainEvent {
   
   energyLevel EnergyLevel @default(MEDIUM)
   motivation  MotivationType?
-  type        ChainType?  @default(SKILL) // Habilidad o Rutina
+  type        ChainType?  @default(ROUTINE) // Habilidad o Rutina
   
   socialBattery     Int?     // 1 to 10, MOVED FROM DailyLog
   dissociationLevel Int?     // 1 to 10, MOVED FROM DailyLog

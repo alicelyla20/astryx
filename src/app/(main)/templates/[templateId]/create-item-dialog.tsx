@@ -20,7 +20,7 @@ export function CreateItemDialog({ templateId, categories }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<TaskType>(TaskType.TECHNICAL);
+  const [type, setType] = useState<TaskType>(TaskType.ROUTINE);
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
   const [chainId, setChainId] = useState("");
 
@@ -70,18 +70,7 @@ export function CreateItemDialog({ templateId, categories }: Props) {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Tipo</label>
-            <Select value={type} onValueChange={(val) => setType(val as TaskType)}>
-              <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl px-4">
-                <span className="font-bold">{taskTypeMap[type]}</span>
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-100">
-                <SelectItem value={TaskType.ROUTINE}>{taskTypeMap.ROUTINE}</SelectItem>
-                <SelectItem value={TaskType.TECHNICAL}>{taskTypeMap.TECHNICAL}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
 
           <div className="space-y-2">
             <label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Energía Requerida</label>

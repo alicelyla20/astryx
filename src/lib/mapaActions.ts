@@ -151,12 +151,13 @@ export async function getArchivedCategoriesAction(): Promise<any[]> {
   });
 }
 
-export async function createChainAction(categoryId: string, name: string, energyLevel: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM"): Promise<void> {
+export async function createChainAction(categoryId: string, name: string, energyLevel: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM", type: "SKILL" | "ROUTINE" = "ROUTINE"): Promise<void> {
   await (prisma as any).chain.create({
     data: {
       categoryId,
       name: name.trim(),
-      energyLevel
+      energyLevel,
+      type
     }
   });
 }
