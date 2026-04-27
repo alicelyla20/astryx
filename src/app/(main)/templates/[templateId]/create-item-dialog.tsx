@@ -46,12 +46,14 @@ export function CreateItemDialog({ templateId, categories }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="w-full lg:w-auto bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center space-x-2 shadow-lg">
-          <Plus className="w-5 h-5" />
-          <span>Añadir Misión a la Plantilla</span>
-        </button>
-      </DialogTrigger>
+      <DialogTrigger 
+        render={
+          <button className="w-full lg:w-auto bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center space-x-2 shadow-lg">
+            <Plus className="w-5 h-5" />
+            <span>Añadir Misión a la Plantilla</span>
+          </button>
+        }
+      />
       <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-h-[90vh] overflow-y-auto w-full max-w-md">
         <DialogHeader>
           <DialogTitle>Nueva Misión de Plantilla</DialogTitle>

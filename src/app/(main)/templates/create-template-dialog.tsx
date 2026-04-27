@@ -31,12 +31,14 @@ export function CreateTemplateDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <div className="w-full bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm cursor-pointer">
-          <Plus className="w-5 h-5 text-purple-500" />
-          <span>Crear Nueva Plantilla</span>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger 
+        render={
+          <div className="w-full bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 text-zinc-300 py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] font-bold shadow-sm cursor-pointer">
+            <Plus className="w-5 h-5 text-purple-500" />
+            <span>Crear Nueva Plantilla</span>
+          </div>
+        }
+      />
       <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-50 rounded-3xl max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nueva Plantilla</DialogTitle>

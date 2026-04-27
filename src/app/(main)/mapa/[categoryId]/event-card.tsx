@@ -21,6 +21,7 @@ interface EventCardProps {
     dissociationLevel?: number | null;
     tranquilityLevel?: number | null;
     voidLevel?: number | null;
+    socialBattery?: number | null;
     type?: string | null;
     createdAt: Date;
   };

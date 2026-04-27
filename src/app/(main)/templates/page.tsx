@@ -21,7 +21,7 @@ export default async function TemplatesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
         {templates.length > 0 ? (
-          templates.map((template) => (
+          templates.map((template: any) => (
             <TemplateCard key={template.id} template={template} />
           ))
         ) : (
