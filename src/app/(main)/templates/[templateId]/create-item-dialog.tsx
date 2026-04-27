@@ -38,8 +38,8 @@ export function CreateItemDialog({ templateId, categories }: Props) {
         setOpen(false);
         setTitle("");
         setChainId("");
-      } catch (err) {
-        toast.error("Error al añadir la misión.");
+      } catch (err: any) {
+        toast.error(err.message || "Error al añadir la misión.");
       }
     });
   };
