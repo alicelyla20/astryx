@@ -29,6 +29,7 @@ export function CreateChainDialog({ categoryId }: { categoryId: string }) {
   const [isPending, setIsPending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(EnergyLevel.MEDIUM);
+  const [type, setType] = useState<"SKILL" | "ROUTINE">("ROUTINE");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +38,7 @@ export function CreateChainDialog({ categoryId }: { categoryId: string }) {
     const name = formData.get("name") as string;
 
     try {
-      await createChainAction(categoryId, name, energyLevel);
+      await createChainAction(categoryId, name, energyLevel, type);
       setOpen(false);
       toast.success("¡Cadena creada!", { description: "Actualizando el mapa..." });
       setIsRefreshing(true);
@@ -95,6 +96,19 @@ export function CreateChainDialog({ categoryId }: { categoryId: string }) {
                 className="bg-zinc-900 border-zinc-800 text-zinc-50 focus-visible:ring-purple-600 rounded-2xl h-14 px-5 text-lg"
                 placeholder="Backend, UX, Diseño..."
               />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-zinc-500 text-xs font-black uppercase tracking-widest pl-1">Tipo de Cadena</Label>
+              <Select value={type} onValueChange={(val) => setType(val as any)}>
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-14 rounded-2xl px-5 flex items-center">
+                  <span className="font-bold">{type === 'ROUTINE' ? 'Rutina' : 'Habilidad'}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-zinc-900 text-zinc-100">
+                  <SelectItem value="ROUTINE">Rutina (Hábito recurrente)</SelectItem>
+                  <SelectItem value="SKILL">Habilidad (Aprendizaje progresivo)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-3">

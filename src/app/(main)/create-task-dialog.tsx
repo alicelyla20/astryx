@@ -125,18 +125,7 @@ export function CreateTaskDialog({ preselectedCategoryId, trigger }: { preselect
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Tipo</Label>
-              <Select name="type" value={taskType} onValueChange={(val) => setTaskType(val || TaskType.TECHNICAL)}>
-                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-xl">
-                  <span className="font-bold">{taskTypeMap[taskType as keyof typeof taskTypeMap]}</span>
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-50">
-                  <SelectItem value={TaskType.TECHNICAL}>{taskTypeMap.TECHNICAL}</SelectItem>
-                  <SelectItem value={TaskType.ROUTINE}>{taskTypeMap.ROUTINE}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <input type="hidden" name="type" value={TaskType.ROUTINE} />
 
             <div className="space-y-2">
               <Label className="text-zinc-500 text-[10px] uppercase font-black tracking-widest pl-1">Energía</Label>
